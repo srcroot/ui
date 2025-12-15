@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function ComponentLayout({
     children,
@@ -14,6 +15,9 @@ export default function ComponentLayout({
                     <SidebarTrigger />
                     <div className="h-4 w-px bg-border mx-2" />
                     <span className="font-semibold">Kitchen Sink</span>
+                    <div className="ml-auto">
+                        <ThemeToggle />
+                    </div>
                 </header>
                 <main className="p-4">
                     {children}
