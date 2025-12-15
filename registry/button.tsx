@@ -32,68 +32,42 @@ const buttonVariants = cva(
     }
 )
 
-type ButtonVariants = VariantProps<typeof buttonVariants>
-
-interface ButtonBaseProps extends ButtonVariants {
-    className?: string
-    children?: React.ReactNode
+interface ButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+    asChild?: boolean
 }
 
 /**
- * Polymorphic Button component
+ * Button component
  * 
  * @example
- * // As a button (default)
+ * // Default button
  * <Button variant="outline">Click me</Button>
- * 
- * // As a link
- * <Button as="a" href="/home" variant="link">Go Home</Button>
  * 
  * // With loading state
  * <Button disabled>
  *   <LoadingSpinner /> Processing...
  * </Button>
  */
-const Button = React.forwardRef(
-    <T extends React.ElementType = "button">(
-        {
-            as,
-            className,
-            variant,
-            size,
-            ...props
-        }: ButtonBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof ButtonBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "button"
-
-        // Ensure proper keyboard handling for non-button elements
-        const handleKeyDown = (e: React.KeyboardEvent) => {
-            if (Comp !== "button" && (e.key === "Enter" || e.key === " ")) {
-                e.preventDefault()
-                    ; (e.currentTarget as HTMLElement).click()
-            }
-            // Call original onKeyDown if provided
-            const originalOnKeyDown = (props as any).onKeyDown
-            if (originalOnKeyDown) {
-                originalOnKeyDown(e)
-            }
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+    ({ className, variant, size, asChild = false, children, ...props }, ref) => {
+        if (asChild && React.isValidElement(children)) {
+            return React.cloneElement(children as React.ReactElement<any>, {
+                ref,
+                className: cn(buttonVariants({ variant, size }), className),
+                ...props,
+            })
         }
 
-        // Add role="button" for non-button elements
-        const accessibilityProps = Comp !== "button" ? {
-            role: "button",
-            tabIndex: 0,
-            onKeyDown: handleKeyDown,
-        } : {}
-
         return (
-            <Comp
-                ref={ref as any}
-                className={cn(buttonVariants({ variant, size, className }))}
-                {...accessibilityProps}
+            <button
+                ref={ref}
+                className={cn(buttonVariants({ variant, size }), className)}
                 {...props}
-            />
+            >
+                {children}
+            </button>
         )
     }
 )

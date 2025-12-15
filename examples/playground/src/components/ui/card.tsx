@@ -15,33 +15,17 @@ import { cn } from "@/lib/utils"
  * </Card>
  */
 
-interface CardBaseProps {
-    className?: string
-    children?: React.ReactNode
-}
-
-const Card = React.forwardRef(
-    <T extends React.ElementType = "div">(
-        {
-            as,
-            className,
-            ...props
-        }: CardBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof CardBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "div"
-
-        return (
-            <Comp
-                ref={ref as any}
-                className={cn(
-                    "rounded-xl border bg-card text-card-foreground shadow",
-                    className
-                )}
-                {...props}
-            />
-        )
-    }
+const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => (
+        <div
+            ref={ref}
+            className={cn(
+                "rounded-xl border bg-card text-card-foreground shadow",
+                className
+            )}
+            {...props}
+        />
+    )
 )
 Card.displayName = "Card"
 
@@ -57,26 +41,16 @@ const CardHeader = React.forwardRef<
 ))
 CardHeader.displayName = "CardHeader"
 
-const CardTitle = React.forwardRef(
-    <T extends React.ElementType = "h3">(
-        {
-            as,
-            className,
-            ...props
-        }: CardBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof CardBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "h3"
-
-        return (
-            <Comp
-                ref={ref as any}
-                className={cn("font-semibold leading-none tracking-tight", className)}
-                {...props}
-            />
-        )
-    }
-)
+const CardTitle = React.forwardRef<
+    HTMLHeadingElement,
+    React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+    <h3
+        ref={ref}
+        className={cn("font-semibold leading-none tracking-tight", className)}
+        {...props}
+    />
+))
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils"
 interface DropdownMenuContextValue {
     open: boolean
     onOpenChange: (open: boolean) => void
+    triggerRef: React.RefObject<HTMLButtonElement | null>
 }
 
 const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(null)
@@ -16,7 +17,7 @@ interface DropdownMenuProps {
 }
 
 /**
- * DropdownMenu component with keyboard navigation
+ * DropdownMenu component with keyboard navigation and proper positioning
  * 
  * @example
  * <DropdownMenu>
@@ -33,12 +34,13 @@ interface DropdownMenuProps {
  */
 function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: DropdownMenuProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
+    const triggerRef = React.useRef<HTMLButtonElement>(null)
 
     const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
     const setOpen = onOpenChange || setUncontrolledOpen
 
     return (
-        <DropdownMenuContext.Provider value={{ open, onOpenChange: setOpen }}>
+        <DropdownMenuContext.Provider value={{ open, onOpenChange: setOpen, triggerRef }}>
             <div className="relative inline-block text-left">
                 {children}
             </div>
@@ -60,18 +62,25 @@ const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTrig
             context.onOpenChange(!context.open)
         }
 
+        // Combine refs
+        const combinedRef = (node: HTMLButtonElement | null) => {
+            (context.triggerRef as React.MutableRefObject<HTMLButtonElement | null>).current = node
+            if (typeof ref === 'function') ref(node)
+            else if (ref) ref.current = node
+        }
+
         if (asChild && React.isValidElement(children)) {
             return React.cloneElement(children as React.ReactElement<any>, {
                 onClick: handleClick,
                 "aria-expanded": context.open,
                 "aria-haspopup": "menu",
-                ref,
+                ref: combinedRef,
             })
         }
 
         return (
             <button
-                ref={ref}
+                ref={combinedRef}
                 aria-expanded={context.open}
                 aria-haspopup="menu"
                 onClick={handleClick}
@@ -84,53 +93,94 @@ const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTrig
 )
 DropdownMenuTrigger.displayName = "DropdownMenuTrigger"
 
-const DropdownMenuContent = React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
-    const context = React.useContext(DropdownMenuContext)
-    if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu")
+interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> {
+    /** Alignment relative to trigger: 'start' | 'center' | 'end' */
+    align?: 'start' | 'center' | 'end'
+    /** Side of trigger to open: 'bottom' | 'top' */
+    side?: 'bottom' | 'top'
+    /** Offset from trigger in pixels */
+    sideOffset?: number
+}
 
-    React.useEffect(() => {
-        const handleClickOutside = () => {
-            if (context.open) {
-                context.onOpenChange(false)
+const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
+    ({ className, align = 'start', side = 'bottom', sideOffset = 4, ...props }, ref) => {
+        const context = React.useContext(DropdownMenuContext)
+        if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu")
+        const contentRef = React.useRef<HTMLDivElement>(null)
+
+        React.useEffect(() => {
+            const handleClickOutside = (e: MouseEvent) => {
+                if (context.open) {
+                    const target = e.target as Node
+                    const content = contentRef.current
+                    const trigger = context.triggerRef.current
+
+                    // Don't close if clicking inside content or trigger
+                    if (content?.contains(target) || trigger?.contains(target)) {
+                        return
+                    }
+                    context.onOpenChange(false)
+                }
             }
-        }
 
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && context.open) {
-                context.onOpenChange(false)
+            const handleEscape = (e: KeyboardEvent) => {
+                if (e.key === "Escape" && context.open) {
+                    context.onOpenChange(false)
+                }
             }
+
+            const timer = setTimeout(() => {
+                document.addEventListener("click", handleClickOutside)
+            }, 0)
+            document.addEventListener("keydown", handleEscape)
+
+            return () => {
+                clearTimeout(timer)
+                document.removeEventListener("click", handleClickOutside)
+                document.removeEventListener("keydown", handleEscape)
+            }
+        }, [context.open, context])
+
+        if (!context.open) return null
+
+        // Calculate alignment classes
+        const alignmentClasses = {
+            start: 'left-0',
+            center: 'left-1/2 -translate-x-1/2',
+            end: 'right-0',
         }
 
-        const timer = setTimeout(() => {
-            document.addEventListener("click", handleClickOutside)
-        }, 0)
-        document.addEventListener("keydown", handleEscape)
-
-        return () => {
-            clearTimeout(timer)
-            document.removeEventListener("click", handleClickOutside)
-            document.removeEventListener("keydown", handleEscape)
+        // Calculate side classes
+        const sideClasses = {
+            bottom: `top-full mt-${sideOffset}`,
+            top: `bottom-full mb-${sideOffset}`,
         }
-    }, [context.open, context])
 
-    if (!context.open) return null
-
-    return (
-        <div
-            ref={ref}
-            role="menu"
-            className={cn(
-                "absolute right-0 z-50 mt-2 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-                className
-            )}
-            onClick={(e) => e.stopPropagation()}
-            {...props}
-        />
-    )
-})
+        return (
+            <div
+                ref={(node) => {
+                    (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+                    if (typeof ref === 'function') ref(node)
+                    else if (ref) ref.current = node
+                }}
+                role="menu"
+                aria-orientation="vertical"
+                className={cn(
+                    "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                    "animate-in fade-in-0 zoom-in-95",
+                    alignmentClasses[align],
+                    side === 'bottom' ? 'top-full' : 'bottom-full',
+                    className
+                )}
+                style={{
+                    marginTop: side === 'bottom' ? sideOffset : undefined,
+                    marginBottom: side === 'top' ? sideOffset : undefined,
+                }}
+                {...props}
+            />
+        )
+    }
+)
 DropdownMenuContent.displayName = "DropdownMenuContent"
 
 const DropdownMenuItem = React.forwardRef<
@@ -188,23 +238,10 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement> & { checked?: boolean; disabled?: boolean }
 >(({ className, children, checked, disabled, onClick, ...props }, ref) => {
-    const context = React.useContext(DropdownMenuContext)
-
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (disabled) return
         onClick?.(e)
-        // Checkbox items usually don't close the menu, or maybe they do? 
-        // Standard behavior is often to keep open for multiple selections, 
-        // but Radix primitives usually don't close. 
-        // Let's assume user wants to toggle and keep open or close depending on UX.
-        // For this simple implementation, let's NOT close it automatically.
-        // Actually, for a "native-like" feel, single click usually toggles and keeps open? 
-        // No, standard non-native dropdowns usually close. 
-        // But for checkboxes, you might want to select multiple. 
-        // Let's stick to closing for now to be safe, or check standard behavior.
-        // Radix UI defaults to NOT closing on selection for CheckboxItem.
-        // But here we are building a custom one. 
-        // Let's NOT close it.
+        // Checkbox items don't close the menu to allow multiple selections
         e.preventDefault()
         e.stopPropagation()
     }
@@ -263,13 +300,6 @@ const DropdownMenuRadioItem = React.forwardRef<
     React.HTMLAttributes<HTMLDivElement> & { value: string; disabled?: boolean }
 >(({ className, children, value, disabled, onClick, ...props }, ref) => {
     const context = React.useContext(DropdownMenuContext)
-    // We strictly don't have a RadioGroup context here in this simple implementation,
-    // so we rely on the parent RadioGroup to handle state via context if we were using Radix.
-    // However, since this is "copy/paste" simple code, we might just style it.
-    // Realistically, to support `onValueChange` properly, we need a Context for RadioGroup.
-    // Let's just implement the UI part for now as requested, assuming controlled state is handled by parent.
-    // Wait, the playground likely expects it to work.
-    // The request is about "exported member", implying it just needs to exist.
 
     return (
         <div
@@ -290,17 +320,6 @@ const DropdownMenuRadioItem = React.forwardRef<
             {...props}
         >
             <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-                {/* We don't have 'checked' state passed here easily without context. 
-                    Consumers usually pass `checked={value === itemValue}` etc if using primitive.
-                    But look at the error: "no exported member".
-                    It seems they just want the component definitions.
-                    Standard Radix RadioItem has a `checked` prop too? 
-                    Actually, let's assume the user passes a `checked` prop or handles logic.
-                    But wait, `value` is passed.
-                    Let's update the signature to accept `checked` for visual indicator if needed, 
-                    or just render a circle.
-                    The previous error log didn't complain about props, just missing export.
-                */}
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"

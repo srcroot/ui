@@ -69,8 +69,8 @@ const Image = React.forwardRef<HTMLImageElement, ImageProps>(
         }, [src])
 
         const containerStyle: React.CSSProperties = aspectRatio
-            ? { paddingBottom: `${100 / aspectRatio}%`, ...style }
-            : style
+            ? { paddingBottom: `${100 / aspectRatio}%`, ...(style || {}) }
+            : (style || {})
 
         // Render fallback
         if (status === "error" && fallback) {

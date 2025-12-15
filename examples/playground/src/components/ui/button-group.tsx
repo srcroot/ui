@@ -33,15 +33,12 @@ const buttonGroupVariants = cva("inline-flex", {
     },
 })
 
-type ButtonGroupVariants = VariantProps<typeof buttonGroupVariants>
-
-interface ButtonGroupBaseProps extends ButtonGroupVariants {
-    className?: string
-    children?: React.ReactNode
-}
+interface ButtonGroupProps
+    extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof buttonGroupVariants> { }
 
 /**
- * Polymorphic ButtonGroup to group buttons together
+ * ButtonGroup to group buttons together
  * 
  * @example
  * <ButtonGroup>
@@ -49,31 +46,14 @@ interface ButtonGroupBaseProps extends ButtonGroupVariants {
  *   <Button>Center</Button>
  *   <Button>Right</Button>
  * </ButtonGroup>
- * 
- * @example
- * <ButtonGroup attached={false}>
- *   <Button>Spaced</Button>
- *   <Button>Buttons</Button>
- * </ButtonGroup>
  */
-const ButtonGroup = React.forwardRef(
-    <T extends React.ElementType = "div">(
-        {
-            as,
-            className,
-            orientation,
-            attached,
-            ...props
-        }: ButtonGroupBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof ButtonGroupBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "div"
-
+const ButtonGroup = React.forwardRef<HTMLDivElement, ButtonGroupProps>(
+    ({ className, orientation, attached, ...props }, ref) => {
         return (
-            <Comp
-                ref={ref as any}
+            <div
+                ref={ref}
                 role="group"
-                className={cn(buttonGroupVariants({ orientation, attached, className }))}
+                className={cn(buttonGroupVariants({ orientation, attached }), className)}
                 {...props}
             />
         )

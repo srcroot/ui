@@ -26,13 +26,14 @@ const textVariants = cva("", {
 
 type TextVariants = VariantProps<typeof textVariants>
 
-interface TextBaseProps extends TextVariants {
+interface TextProps extends TextVariants {
     className?: string
     children?: React.ReactNode
+    as?: "p" | "span" | "div" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "label"
 }
 
 /**
- * Polymorphic Text component for typography
+ * Text component for typography
  * 
  * @example
  * // As a heading
@@ -44,22 +45,12 @@ interface TextBaseProps extends TextVariants {
  * // Muted text
  * <Text variant="muted">Secondary information</Text>
  */
-const Text = React.forwardRef(
-    <T extends React.ElementType = "p">(
-        {
-            as,
-            className,
-            variant,
-            ...props
-        }: TextBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof TextBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "p"
-
+const Text = React.forwardRef<HTMLElement, TextProps>(
+    ({ as: Component = "p", className, variant, ...props }, ref) => {
         return (
-            <Comp
+            <Component
                 ref={ref as any}
-                className={cn(textVariants({ variant, className }))}
+                className={cn(textVariants({ variant }), className)}
                 {...props}
             />
         )

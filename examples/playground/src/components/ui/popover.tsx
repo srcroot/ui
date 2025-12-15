@@ -88,9 +88,11 @@ const PopoverContent = React.forwardRef<
     const context = React.useContext(PopoverContext)
     if (!context) throw new Error("PopoverContent must be used within Popover")
 
+    const contentRef = React.useRef<HTMLDivElement>(null)
+
     React.useEffect(() => {
-        const handleClickOutside = () => {
-            if (context.open) {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (context.open && contentRef.current && !contentRef.current.contains(e.target as Node)) {
                 context.onOpenChange(false)
             }
         }
@@ -101,7 +103,7 @@ const PopoverContent = React.forwardRef<
             }
         }
 
-        // Delay adding the listener to prevent immediate close
+        // Delay adding the listener to prevent immediate close from the trigger click
         const timer = setTimeout(() => {
             document.addEventListener("click", handleClickOutside)
         }, 0)
@@ -118,12 +120,11 @@ const PopoverContent = React.forwardRef<
 
     return (
         <div
-            ref={ref}
+            ref={contentRef}
             className={cn(
                 "absolute z-50 mt-2 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
                 className
             )}
-            onClick={(e) => e.stopPropagation()}
             {...props}
         >
             {children}

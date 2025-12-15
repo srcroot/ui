@@ -1,3 +1,4 @@
+'use client'
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
@@ -17,20 +18,7 @@ interface SheetProps {
 }
 
 /**
- * Sheet (slide-in panel) component
- * 
- * @example
- * <Sheet>
- *   <SheetTrigger asChild>
- *     <Button>Open Sheet</Button>
- *   </SheetTrigger>
- *   <SheetContent side="right">
- *     <SheetHeader>
- *       <SheetTitle>Title</SheetTitle>
- *       <SheetDescription>Description</SheetDescription>
- *     </SheetHeader>
- *   </SheetContent>
- * </Sheet>
+ * Sheet (slide-in panel) component with smooth animations
  */
 function Sheet({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: SheetProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
@@ -76,7 +64,7 @@ const SheetTrigger = React.forwardRef<HTMLButtonElement, SheetTriggerProps>(
 SheetTrigger.displayName = "SheetTrigger"
 
 const sheetVariants = cva(
-    "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out",
+    "fixed z-50 gap-4 bg-background p-6 shadow-lg",
     {
         variants: {
             side: {
@@ -92,6 +80,26 @@ const sheetVariants = cva(
     }
 )
 
+// Animation classes for each side
+const animationClasses = {
+    top: {
+        open: "translate-y-0",
+        closed: "-translate-y-full",
+    },
+    bottom: {
+        open: "translate-y-0",
+        closed: "translate-y-full",
+    },
+    left: {
+        open: "translate-x-0",
+        closed: "-translate-x-full",
+    },
+    right: {
+        open: "translate-x-0",
+        closed: "translate-x-full",
+    },
+}
+
 interface SheetContentProps
     extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof sheetVariants> { }
@@ -100,6 +108,29 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
     ({ side = "right", className, children, ...props }, ref) => {
         const context = React.useContext(SheetContext)
         if (!context) throw new Error("SheetContent must be used within Sheet")
+
+        const [isVisible, setIsVisible] = React.useState(false)
+        const [isAnimating, setIsAnimating] = React.useState(false)
+
+        React.useEffect(() => {
+            if (context.open) {
+                // First make visible (off-screen)
+                setIsVisible(true)
+                // Use a small timeout to ensure the browser has painted the initial state
+                const timer = setTimeout(() => {
+                    setIsAnimating(true)
+                }, 10)
+                return () => clearTimeout(timer)
+            } else {
+                // Start close animation
+                setIsAnimating(false)
+                // Wait for animation to complete before hiding
+                const timer = setTimeout(() => {
+                    setIsVisible(false)
+                }, 300)
+                return () => clearTimeout(timer)
+            }
+        }, [context.open])
 
         React.useEffect(() => {
             const handleEscape = (e: KeyboardEvent) => {
@@ -119,19 +150,33 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
             }
         }, [context.open, context])
 
-        if (!context.open) return null
+        if (!isVisible) return null
+
+        const sideKey = side || "right"
 
         return (
             <>
+                {/* Overlay with fade animation */}
                 <div
-                    className="fixed inset-0 z-50 bg-black/80"
+                    className={cn(
+                        "fixed inset-0 z-50 bg-black/80 transition-opacity duration-300",
+                        isAnimating ? "opacity-100" : "opacity-0"
+                    )}
                     onClick={() => context.onOpenChange(false)}
                 />
+                {/* Sheet content with slide animation */}
                 <div
                     ref={ref}
                     role="dialog"
                     aria-modal="true"
-                    className={cn(sheetVariants({ side }), className)}
+                    className={cn(
+                        sheetVariants({ side }),
+                        "transition-transform duration-300 ease-out",
+                        isAnimating
+                            ? animationClasses[sideKey].open
+                            : animationClasses[sideKey].closed,
+                        className
+                    )}
                     {...props}
                 >
                     {children}

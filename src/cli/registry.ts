@@ -41,6 +41,21 @@ export type ComponentName =
     | "carousel"
     | "calendar"
     | "sidebar"
+    // Added components
+    | "combobox"
+    | "command"
+    | "context-menu"
+    | "date-picker"
+    | "drawer"
+    | "file-upload"
+    | "hover-card"
+    | "kbd"
+    | "menubar"
+    | "native-select"
+    | "resizable"
+    | "scroll-area"
+    | "toggle"
+    | "toggle-group"
 
 interface ComponentConfig {
     file: string
@@ -310,6 +325,92 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Responsive sidebar with mobile drawer",
         category: "Layout",
         dependencies: ["sheet", "button"],
+    },
+
+    // Added Components
+    combobox: {
+        file: "combobox.tsx",
+        description: "Searchable select with autocomplete",
+        category: "Forms",
+        dependencies: ["popover"],
+    },
+    command: {
+        file: "command.tsx",
+        description: "Command palette / search menu",
+        category: "Navigation",
+        dependencies: [],
+    },
+    "context-menu": {
+        file: "context-menu.tsx",
+        description: "Right-click context menu",
+        category: "Overlay / Feedback",
+        dependencies: [],
+    },
+    "date-picker": {
+        file: "date-picker.tsx",
+        description: "Date picker with calendar",
+        category: "Forms",
+        dependencies: ["calendar", "popover", "button"],
+    },
+    drawer: {
+        file: "drawer.tsx",
+        description: "Bottom/top sheet drawer",
+        category: "Overlay / Feedback",
+        dependencies: [],
+    },
+    "file-upload": {
+        file: "file-upload.tsx",
+        description: "Drag-and-drop file upload",
+        category: "Forms",
+        dependencies: [],
+    },
+    "hover-card": {
+        file: "hover-card.tsx",
+        description: "Hover-triggered popover",
+        category: "Overlay / Feedback",
+        dependencies: [],
+    },
+    kbd: {
+        file: "kbd.tsx",
+        description: "Keyboard shortcut display",
+        category: "Typography",
+        dependencies: [],
+    },
+    menubar: {
+        file: "menubar.tsx",
+        description: "Horizontal menu with dropdowns",
+        category: "Navigation",
+        dependencies: [],
+    },
+    "native-select": {
+        file: "native-select.tsx",
+        description: "Styled browser-native select",
+        category: "Forms",
+        dependencies: [],
+    },
+    resizable: {
+        file: "resizable.tsx",
+        description: "Resizable panel layout",
+        category: "Layout",
+        dependencies: [],
+    },
+    "scroll-area": {
+        file: "scroll-area.tsx",
+        description: "Custom scrollbar container",
+        category: "Layout",
+        dependencies: [],
+    },
+    toggle: {
+        file: "toggle.tsx",
+        description: "Toggle button",
+        category: "Forms",
+        dependencies: [],
+    },
+    "toggle-group": {
+        file: "toggle-group.tsx",
+        description: "Grouped toggle buttons",
+        category: "Forms",
+        dependencies: ["toggle"],
     },
 }
 

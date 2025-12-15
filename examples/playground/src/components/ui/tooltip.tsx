@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 interface TooltipContextValue {
     open: boolean
     setOpen: (open: boolean) => void
+    mousePosition: { x: number; y: number }
+    setMousePosition: (pos: { x: number; y: number }) => void
 }
 
 const TooltipContext = React.createContext<TooltipContextValue | null>(null)
@@ -28,7 +30,7 @@ interface TooltipProps {
 }
 
 /**
- * Tooltip component for hover hints
+ * Tooltip component for hover hints - appears at mouse cursor position
  * 
  * @example
  * <TooltipProvider>
@@ -40,12 +42,13 @@ interface TooltipProps {
  */
 function Tooltip({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: TooltipProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
+    const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 })
 
     const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
     const setOpen = onOpenChange || setUncontrolledOpen
 
     return (
-        <TooltipContext.Provider value={{ open, setOpen }}>
+        <TooltipContext.Provider value={{ open, setOpen, mousePosition, setMousePosition }}>
             <span className="relative inline-block">
                 {children}
             </span>
@@ -64,6 +67,9 @@ const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
 
         const handleMouseEnter = () => context.setOpen(true)
         const handleMouseLeave = () => context.setOpen(false)
+        const handleMouseMove = (e: React.MouseEvent) => {
+            context.setMousePosition({ x: e.clientX, y: e.clientY })
+        }
         const handleFocus = () => context.setOpen(true)
         const handleBlur = () => context.setOpen(false)
 
@@ -71,6 +77,7 @@ const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
             return React.cloneElement(children as React.ReactElement<any>, {
                 onMouseEnter: handleMouseEnter,
                 onMouseLeave: handleMouseLeave,
+                onMouseMove: handleMouseMove,
                 onFocus: handleFocus,
                 onBlur: handleBlur,
                 ref,
@@ -82,6 +89,7 @@ const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                onMouseMove={handleMouseMove}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 tabIndex={0}
@@ -103,12 +111,22 @@ const TooltipContent = React.forwardRef<
 
     if (!context.open) return null
 
+    // Offset from cursor (slightly above and to the right)
+    const offsetX = 10
+    const offsetY = -10
+
     return (
         <div
             ref={ref}
             role="tooltip"
+            style={{
+                position: 'fixed',
+                left: context.mousePosition.x + offsetX,
+                top: context.mousePosition.y + offsetY,
+                transform: 'translateY(-100%)',
+            }}
             className={cn(
-                "absolute left-1/2 bottom-full z-50 mb-2 -translate-x-1/2 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95",
+                "z-[9999] overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 pointer-events-none whitespace-nowrap",
                 className
             )}
             {...props}

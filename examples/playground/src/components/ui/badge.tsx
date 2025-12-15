@@ -22,15 +22,12 @@ const badgeVariants = cva(
     }
 )
 
-type BadgeVariants = VariantProps<typeof badgeVariants>
-
-interface BadgeBaseProps extends BadgeVariants {
-    className?: string
-    children?: React.ReactNode
-}
+interface BadgeProps
+    extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> { }
 
 /**
- * Polymorphic Badge component for status indicators
+ * Badge component for status indicators
  * 
  * @example
  * // Default badge
@@ -38,26 +35,13 @@ interface BadgeBaseProps extends BadgeVariants {
  * 
  * // Destructive variant
  * <Badge variant="destructive">Error</Badge>
- * 
- * // As a link
- * <Badge as="a" href="/status">View Status</Badge>
  */
-const Badge = React.forwardRef(
-    <T extends React.ElementType = "span">(
-        {
-            as,
-            className,
-            variant,
-            ...props
-        }: BadgeBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof BadgeBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "span"
-
+const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
+    ({ className, variant, ...props }, ref) => {
         return (
-            <Comp
-                ref={ref as any}
-                className={cn(badgeVariants({ variant, className }))}
+            <span
+                ref={ref}
+                className={cn(badgeVariants({ variant }), className)}
                 {...props}
             />
         )

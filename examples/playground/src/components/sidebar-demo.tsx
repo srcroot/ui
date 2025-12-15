@@ -1,7 +1,6 @@
 import * as React from "react"
 import { LayoutDashboard, Users, Settings, Mail } from "lucide-react"
-import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarFooter, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
+import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 
 export default function SidebarDemo() {
     return (
@@ -9,29 +8,35 @@ export default function SidebarDemo() {
             <SidebarProvider>
                 <Sidebar>
                     <SidebarHeader>
-                        Team ReLab
+                        Team srcRoot
                     </SidebarHeader>
                     <SidebarContent>
                         <SidebarMenu>
-                            <SidebarMenuItem active>
-                                <LayoutDashboard className="h-4 w-4" />
-                                <span>Dashboard</span>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton isActive>
+                                    <LayoutDashboard className="h-4 w-4" />
+                                    <span>Dashboard</span>
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <Users className="h-4 w-4" />
-                                <span>Team</span>
+                                <SidebarMenuButton>
+                                    <Users className="h-4 w-4" />
+                                    <span>Team</span>
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <Mail className="h-4 w-4" />
-                                <span>Messages</span>
+                                <SidebarMenuButton>
+                                    <Mail className="h-4 w-4" />
+                                    <span>Messages</span>
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarContent>
                     <SidebarFooter>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <SidebarMenuButton>
                             <Settings className="h-4 w-4" />
                             <span>Settings</span>
-                        </div>
+                        </SidebarMenuButton>
                     </SidebarFooter>
                 </Sidebar>
                 <SidebarInset className="bg-background">

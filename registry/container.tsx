@@ -18,38 +18,22 @@ const containerVariants = cva("mx-auto w-full px-4", {
     },
 })
 
-type ContainerVariants = VariantProps<typeof containerVariants>
-
-interface ContainerBaseProps extends ContainerVariants {
-    className?: string
-    children?: React.ReactNode
-}
+interface ContainerProps
+    extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof containerVariants> { }
 
 /**
- * Polymorphic Container for max-width layouts
+ * Container for max-width layouts
  * 
  * @example
  * <Container size="lg">Content</Container>
- * 
- * @example
- * <Container as="section" size="md">Section content</Container>
  */
-const Container = React.forwardRef(
-    <T extends React.ElementType = "div">(
-        {
-            as,
-            className,
-            size,
-            ...props
-        }: ContainerBaseProps & { as?: T } & Omit<React.ComponentPropsWithoutRef<T>, keyof ContainerBaseProps | "as">,
-        ref: React.ForwardedRef<React.ElementRef<T>>
-    ) => {
-        const Comp = as || "div"
-
+const Container = React.forwardRef<HTMLDivElement, ContainerProps>(
+    ({ className, size, ...props }, ref) => {
         return (
-            <Comp
-                ref={ref as any}
-                className={cn(containerVariants({ size, className }))}
+            <div
+                ref={ref}
+                className={cn(containerVariants({ size }), className)}
                 {...props}
             />
         )

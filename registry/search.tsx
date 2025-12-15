@@ -97,7 +97,8 @@ const Search = React.forwardRef<HTMLInputElement, SearchProps>(
                         "flex h-10 w-full rounded-md border border-input bg-transparent pl-10 pr-10 py-2 text-sm shadow-sm transition-colors",
                         "placeholder:text-muted-foreground",
                         "focus:outline-none focus:ring-1 focus:ring-ring",
-                        "disabled:cursor-not-allowed disabled:opacity-50"
+                        "disabled:cursor-not-allowed disabled:opacity-50",
+                        "[&::-webkit-search-cancel-button]:appearance-none"
                     )}
                     {...props}
                 />

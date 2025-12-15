@@ -36,14 +36,14 @@ const Search = React.forwardRef<HTMLInputElement, SearchProps>(
         ref
     ) => {
         const [value, setValue] = React.useState(String(defaultValue))
-        const debounceRef = React.useRef<NodeJS.Timeout>()
+        const debounceRef = React.useRef<NodeJS.Timeout | null>(null)
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
             const newValue = e.target.value
             setValue(newValue)
 
             if (debounceMs > 0) {
-                clearTimeout(debounceRef.current)
+                if (debounceRef.current) clearTimeout(debounceRef.current)
                 debounceRef.current = setTimeout(() => {
                     onSearch?.(newValue)
                 }, debounceMs)
@@ -65,7 +65,7 @@ const Search = React.forwardRef<HTMLInputElement, SearchProps>(
 
         React.useEffect(() => {
             return () => {
-                clearTimeout(debounceRef.current)
+                if (debounceRef.current) clearTimeout(debounceRef.current)
             }
         }, [])
 
@@ -97,7 +97,8 @@ const Search = React.forwardRef<HTMLInputElement, SearchProps>(
                         "flex h-10 w-full rounded-md border border-input bg-transparent pl-10 pr-10 py-2 text-sm shadow-sm transition-colors",
                         "placeholder:text-muted-foreground",
                         "focus:outline-none focus:ring-1 focus:ring-ring",
-                        "disabled:cursor-not-allowed disabled:opacity-50"
+                        "disabled:cursor-not-allowed disabled:opacity-50",
+                        "[&::-webkit-search-cancel-button]:appearance-none"
                     )}
                     {...props}
                 />
