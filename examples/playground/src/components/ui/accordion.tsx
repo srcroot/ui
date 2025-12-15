@@ -5,6 +5,7 @@ interface AccordionContextValue {
     value: string[]
     onValueChange: (value: string[]) => void
     type: "single" | "multiple"
+    collapsible: boolean
 }
 
 const AccordionContext = React.createContext<AccordionContextValue | null>(null)
@@ -37,14 +38,14 @@ interface AccordionProps extends React.HTMLAttributes<HTMLDivElement> {
  * </Accordion>
  */
 const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
-    ({ className, type = "single", value: controlledValue, onValueChange, defaultValue = [], children, ...props }, ref) => {
+    ({ className, type = "single", value: controlledValue, onValueChange, defaultValue = [], collapsible = false, children, ...props }, ref) => {
         const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
 
         const value = controlledValue !== undefined ? controlledValue : uncontrolledValue
         const setValue = onValueChange || setUncontrolledValue
 
         return (
-            <AccordionContext.Provider value={{ value, onValueChange: setValue, type }}>
+            <AccordionContext.Provider value={{ value, onValueChange: setValue, type, collapsible }}>
                 <div ref={ref} className={cn("", className)} {...props}>
                     {children}
                 </div>
@@ -53,6 +54,7 @@ const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
     }
 )
 Accordion.displayName = "Accordion"
+
 
 interface AccordionItemProps extends React.HTMLAttributes<HTMLDivElement> {
     value: string
@@ -67,6 +69,8 @@ const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
 
         const toggle = () => {
             if (context.type === "single") {
+                // In single mode with collapsible=false, don't allow closing
+                if (isOpen && !context.collapsible) return
                 context.onValueChange(isOpen ? [] : [value])
             } else {
                 context.onValueChange(
