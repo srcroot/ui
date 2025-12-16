@@ -574,16 +574,46 @@ export async function init(options: InitOptions) {
   const isTailwind4 = tailwindVersion.includes("^4") || tailwindVersion.startsWith("4") || allDeps["@tailwindcss/postcss"]
 
   // Determine paths
-  const srcDir = fs.existsSync(path.join(cwd, "src")) ? path.join(cwd, "src") : cwd
-  const appDir = path.join(srcDir, "app")
-  const isAppRouter = fs.existsSync(appDir)
+  const hasSrc = fs.existsSync(path.join(cwd, "src"))
+  const srcPath = hasSrc ? path.join(cwd, "src") : cwd
 
-  // Adjust paths based on src existence
-  const libDir = path.join(srcDir, "lib")
-  const componentsDir = path.join(srcDir, "components", "ui")
-  const globalsPath = isAppRouter
-    ? path.join(appDir, "globals.css")
-    : path.join(srcDir, "styles", "globals.css")
+  // Detect Router Type
+  const appPath = path.join(srcPath, "app")
+  const pagesPath = path.join(srcPath, "pages")
+  const hasAppDir = fs.existsSync(appPath)
+  const hasPagesDir = fs.existsSync(pagesPath)
+
+  // Adjust paths
+  const libDir = path.join(srcPath, "lib")
+  const componentsDir = path.join(srcPath, "components", "ui")
+
+  // Find globals.css
+  let globalsPath = ""
+
+  if (hasAppDir) {
+    // App Router: usually in app/globals.css
+    if (fs.existsSync(path.join(appPath, "globals.css"))) {
+      globalsPath = path.join(appPath, "globals.css")
+    } else if (fs.existsSync(path.join(appPath, "global.css"))) {
+      globalsPath = path.join(appPath, "global.css")
+    } else {
+      // Default to app/globals.css for new projects
+      globalsPath = path.join(appPath, "globals.css")
+    }
+  } else if (hasPagesDir) {
+    // Pages Router: usually in styles/globals.css
+    const stylesPath = path.join(srcPath, "styles")
+    if (fs.existsSync(path.join(stylesPath, "globals.css"))) {
+      globalsPath = path.join(stylesPath, "globals.css")
+    } else if (fs.existsSync(path.join(stylesPath, "global.css"))) {
+      globalsPath = path.join(stylesPath, "global.css")
+    } else {
+      globalsPath = path.join(stylesPath, "globals.css")
+    }
+  } else {
+    // Fallback: root/globals.css or src/globals.css
+    globalsPath = path.join(srcPath, "globals.css")
+  }
 
   // Theme selection
   let selectedTheme = options.theme || "slate"
@@ -641,54 +671,30 @@ export async function init(options: InitOptions) {
       spinner.info(`Tailwind 4 detected - skipping ${chalk.cyan("tailwind.config.ts")}`)
     }
 
-    // Check for required dependencies
-    spinner.start("Checking dependencies...")
-
-    // Refresh pkg check
-    const currentPkg = await fs.readJson(packageJsonPath)
-    const currentDeps = { ...currentPkg.dependencies, ...currentPkg.devDependencies }
-    const missing: string[] = []
-
-    // Deps to check (key) and install command (value)
-    // Add tailwindcss-animate only for v3
-    const requiredDeps: Record<string, string> = {
-      "clsx": "clsx@2.1.1",
-      "tailwind-merge": "tailwind-merge@3.4.0",
-      "class-variance-authority": "class-variance-authority@0.7.1",
-      "lucide-react": "lucide-react@0.561.0"
-    }
-
-    if (!isTailwind4) {
-      requiredDeps["tailwindcss-animate"] = "tailwindcss-animate"
-    }
-
-    for (const [depName, installCmd] of Object.entries(requiredDeps)) {
-      if (!currentDeps[depName]) {
-        missing.push(installCmd)
-      }
-    }
-
-    if (missing.length > 0) {
-      spinner.text = `Installing dependencies via ${packageManager}: ${missing.join(", ")}...`
-      try {
-        const { execSync } = await import("child_process")
-        execSync(`${packageManager} ${installCmd} ${missing.join(" ")}`, { stdio: "ignore", cwd })
-        spinner.succeed("Dependencies installed")
-      } catch {
-        spinner.fail("Failed to install dependencies automatically")
-        console.log(chalk.dim(`\nPlease manually run: ${packageManager} ${installCmd} ${missing.join(" ")}\n`))
-      }
-    } else {
-      spinner.succeed("All dependencies already installed")
-    }
-
     // Success message at the end
     console.log(chalk.green("\n✅ Project initialized successfully!\n"))
     console.log(`Theme: ${chalk.cyan(THEMES[selectedTheme].name)}`)
     console.log(`Tailwind: ${chalk.cyan(isTailwind4 ? "v4" : "v3")}`)
-    console.log("\nNext steps:")
-    console.log(chalk.dim("  npx @srcroot/ui add button"))
-    console.log(chalk.dim("  npx @srcroot/ui add --all"))
+
+    // List required dependencies for manual installation
+    const requiredDeps = [
+      "clsx",
+      "tailwind-merge",
+      "class-variance-authority",
+      "lucide-react"
+    ]
+
+    if (!isTailwind4) {
+      requiredDeps.push("tailwindcss-animate")
+    }
+
+    console.log(chalk.cyan("\n📦 Required dependencies:"))
+    console.log(chalk.dim(`  ${packageManager} ${installCmd} ${requiredDeps.join(" ")}`))
+
+    console.log("\n✨ Next steps:")
+    console.log(chalk.dim("  1. Install dependencies (command above)"))
+    console.log(chalk.dim("  2. npx @srcroot/ui add button"))
+    console.log(chalk.dim("  3. npx @srcroot/ui add --all"))
     console.log()
 
   } catch (error) {
