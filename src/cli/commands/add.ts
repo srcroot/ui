@@ -57,7 +57,7 @@ export async function add(components: string[], options: AddOptions) {
 
     if (invalidComponents.length > 0) {
         console.log(chalk.red(`Unknown components: ${invalidComponents.join(", ")}`))
-        console.log(chalk.dim("\nRun 'srcroot-ui list' to see available components."))
+        console.log(chalk.dim("\nRun '@srcroot/ui list' to see available components."))
         process.exit(1)
     }
 

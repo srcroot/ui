@@ -31,5 +31,5 @@ export async function list() {
         console.log()
     }
 
-    console.log(chalk.dim("Usage: npx srcroot-ui add <component>\n"))
+    console.log(chalk.dim("Usage: npx @srcroot/ui add <component>\n"))
 }

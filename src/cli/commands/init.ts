@@ -255,7 +255,8 @@ const THEMES: Record<string, { name: string; description: string; light: Record<
   },
 }
 
-function generateCssVariables(themeName: string): string {
+// Generate CSS for Tailwind 3
+function generateCssVariablesV3(themeName: string): string {
   const theme = THEMES[themeName]
   if (!theme) return ""
 
@@ -275,10 +276,31 @@ function generateCssVariables(themeName: string): string {
   :root {
 ${lightVars}
     --radius: 0.5rem;
+    --sidebar-width: 16rem;
+    --sidebar-width-mobile: 18rem;
+    --sidebar-width-collapsed: 3rem;
+    --sidebar-width-icon: 3rem;
+    --header-height: 3.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
 ${darkVars}
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -309,6 +331,148 @@ ${darkVars}
 }
 `
 }
+
+// Generate CSS for Tailwind 4
+function generateCssVariablesV4(themeName: string): string {
+  const theme = THEMES[themeName]
+  if (!theme) return ""
+
+  // Helper to convert HSL space-separated values to generic values if needed, 
+  // but for now we trust the HSL values work with Tailwind 4's opacity modifiers if setup correctly.
+  // We'll keep the variables as they are but ensure the @theme block maps them correctly.
+
+  const lightVars = Object.entries(theme.light)
+    .map(([key, value]) => `  --${key}: ${value};`) // Indentation 2 spaces
+    .join("\n")
+
+  const darkVars = Object.entries(theme.dark)
+    .map(([key, value]) => `    --${key}: ${value};`) // Indentation 4 spaces
+    .join("\n")
+
+  // Generate theme mappings
+  // Note: We use color-mix or just raw var usage depending on how strict we want to be.
+  // shadcn usually provides strictly HSL values (e.g. "222.2 84% 4.9%") which need `hsl(var(--...))` wrapper in usage.
+  // But Tailwind 4 can use variables directly if defined as colors.
+  // The provided example uses: --color-background: var(--background);
+  // And --background is defined as hex.
+  // Our themes are HSL numbers. So we need `hsl(var(--...))` wrapper for Tailwind < 4 compatibility, 
+  // OR we define properties that expect HSL.
+
+  // WAIT: The user example for TW4 shows hex values for background/foreground.
+  // Our THEMES have HSL space separated values (e.g. "0 0% 100%").
+  // To make this compatible with the user's requesting format (using --color-* logic),
+  // we need to wrap our HSL values in `hsl(...)` OR change the THEMES values.
+  // Changing THEMES values breaks TW3 compatibility unless we act smart.
+  // Better approach: Keep THEMES as HSL numbers. In CSS, define:
+  // --background: hsl(0 0% 100%);
+
+  // Let's adapt the output to look like the requested format but using our HSL values wrapped in hsl().
+
+  const lightVarsHsl = Object.entries(theme.light)
+    .map(([key, value]) => `  --${key}: hsl(${value});`)
+    .join("\n")
+
+  const darkVarsHsl = Object.entries(theme.dark)
+    .map(([key, value]) => `    --${key}: hsl(${value});`)
+    .join("\n")
+
+  return `@import "tailwindcss";
+
+:root {
+${lightVarsHsl}
+  --radius: 0.5rem;
+  --sidebar-width: 16rem;
+  --sidebar-width-mobile: 18rem;
+  --sidebar-width-collapsed: 3rem;
+  --sidebar-width-icon: 3rem;
+  --header-height: 3.5rem;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+@theme inline {
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-sidebar: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  /* Accordion Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+${darkVarsHsl}
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+`
+}
+
 
 const TAILWIND_CONFIG = `import type { Config } from "tailwindcss"
 
@@ -361,9 +525,23 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+      },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
 
 export default config
@@ -372,7 +550,15 @@ export default config
 export async function init(options: InitOptions) {
   const cwd = path.resolve(options.cwd)
 
-  console.log(chalk.cyan("\n🚀 Initializing srcroot-ui...\n"))
+  // Detect package manager
+  const userAgent = process.env.npm_config_user_agent || ""
+  const isYarn = userAgent.includes("yarn")
+  const isPnpm = userAgent.includes("pnpm")
+  const isBun = userAgent.includes("bun")
+  const packageManager = isPnpm ? "pnpm" : isYarn ? "yarn" : isBun ? "bun" : "npm"
+  const installCmd = isPnpm ? "add" : isYarn ? "add" : isBun ? "add" : "install"
+
+  console.log(chalk.cyan("\n🚀 Initializing @srcroot/ui...\n"))
 
   // Check if this is a valid project
   const packageJsonPath = path.join(cwd, "package.json")
@@ -380,6 +566,12 @@ export async function init(options: InitOptions) {
     console.log(chalk.red("Error: No package.json found. Please run this in a project directory."))
     process.exit(1)
   }
+
+  // Detect Tailwind Version
+  const pkg = await fs.readJson(packageJsonPath)
+  const allDeps = { ...pkg.dependencies, ...pkg.devDependencies }
+  const tailwindVersion = allDeps["tailwindcss"] || ""
+  const isTailwind4 = tailwindVersion.includes("^4") || tailwindVersion.startsWith("4") || allDeps["@tailwindcss/postcss"]
 
   // Determine paths
   const srcDir = fs.existsSync(path.join(cwd, "src")) ? path.join(cwd, "src") : cwd
@@ -432,23 +624,33 @@ export async function init(options: InitOptions) {
     const stylesDir = path.dirname(globalsPath)
     await fs.ensureDir(stylesDir)
 
-    const cssContent = generateCssVariables(selectedTheme)
-    await fs.writeFile(globalsPath, cssContent)
-    spinner.succeed(`Updated ${chalk.cyan(path.relative(cwd, globalsPath))} with ${chalk.cyan(THEMES[selectedTheme].name)} theme`)
+    const cssContent = isTailwind4
+      ? generateCssVariablesV4(selectedTheme)
+      : generateCssVariablesV3(selectedTheme)
 
-    // Create tailwind.config.ts
-    spinner.start("Setting up Tailwind config...")
-    const tailwindConfigPath = path.join(cwd, "tailwind.config.ts")
-    await fs.writeFile(tailwindConfigPath, TAILWIND_CONFIG)
-    spinner.succeed(`Created ${chalk.cyan("tailwind.config.ts")}`)
+    await fs.writeFile(globalsPath, cssContent)
+    spinner.succeed(`Updated ${chalk.cyan(path.relative(cwd, globalsPath))} with ${chalk.cyan(THEMES[selectedTheme].name)} theme (${isTailwind4 ? "Tailwind 4" : "Tailwind 3"})`)
+
+    // Create tailwind.config.ts (Only for Tailwind 3)
+    if (!isTailwind4) {
+      spinner.start("Setting up Tailwind config...")
+      const tailwindConfigPath = path.join(cwd, "tailwind.config.ts")
+      await fs.writeFile(tailwindConfigPath, TAILWIND_CONFIG)
+      spinner.succeed(`Created ${chalk.cyan("tailwind.config.ts")}`)
+    } else {
+      spinner.info(`Tailwind 4 detected - skipping ${chalk.cyan("tailwind.config.ts")}`)
+    }
 
     // Check for required dependencies
     spinner.start("Checking dependencies...")
-    const pkg = await fs.readJson(packageJsonPath)
-    const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+
+    // Refresh pkg check
+    const currentPkg = await fs.readJson(packageJsonPath)
+    const currentDeps = { ...currentPkg.dependencies, ...currentPkg.devDependencies }
     const missing: string[] = []
 
     // Deps to check (key) and install command (value)
+    // Add tailwindcss-animate only for v3
     const requiredDeps: Record<string, string> = {
       "clsx": "clsx@2.1.1",
       "tailwind-merge": "tailwind-merge@3.4.0",
@@ -456,21 +658,25 @@ export async function init(options: InitOptions) {
       "lucide-react": "lucide-react@0.561.0"
     }
 
+    if (!isTailwind4) {
+      requiredDeps["tailwindcss-animate"] = "tailwindcss-animate"
+    }
+
     for (const [depName, installCmd] of Object.entries(requiredDeps)) {
-      if (!deps[depName]) {
+      if (!currentDeps[depName]) {
         missing.push(installCmd)
       }
     }
 
     if (missing.length > 0) {
-      spinner.text = `Installing dependencies: ${missing.join(", ")}...`
+      spinner.text = `Installing dependencies via ${packageManager}: ${missing.join(", ")}...`
       try {
         const { execSync } = await import("child_process")
-        execSync(`npm install ${missing.join(" ")}`, { stdio: "ignore", cwd })
+        execSync(`${packageManager} ${installCmd} ${missing.join(" ")}`, { stdio: "ignore", cwd })
         spinner.succeed("Dependencies installed")
       } catch {
         spinner.fail("Failed to install dependencies automatically")
-        console.log(chalk.dim(`\nPlease manually run: npm install ${missing.join(" ")}\n`))
+        console.log(chalk.dim(`\nPlease manually run: ${packageManager} ${installCmd} ${missing.join(" ")}\n`))
       }
     } else {
       spinner.succeed("All dependencies already installed")
@@ -479,6 +685,7 @@ export async function init(options: InitOptions) {
     // Success message at the end
     console.log(chalk.green("\n✅ Project initialized successfully!\n"))
     console.log(`Theme: ${chalk.cyan(THEMES[selectedTheme].name)}`)
+    console.log(`Tailwind: ${chalk.cyan(isTailwind4 ? "v4" : "v3")}`)
     console.log("\nNext steps:")
     console.log(chalk.dim("  npx @srcroot/ui add button"))
     console.log(chalk.dim("  npx @srcroot/ui add --all"))
