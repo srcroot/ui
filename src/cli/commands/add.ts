@@ -29,6 +29,7 @@ export async function add(components: string[], options: AddOptions) {
             name: "items",
             message: "Which components would you like to add?",
             hint: "Space to select. A to toggle all. Enter to submit.",
+            instructions: false,
             choices: Object.keys(REGISTRY).map((name) => ({
                 title: name,
                 value: name,
@@ -82,28 +83,24 @@ export async function add(components: string[], options: AddOptions) {
 
     const componentsToAdd = Array.from(toInstall)
 
-    console.log(chalk.cyan("\n📦 Adding components:\n"))
-    componentsToAdd.forEach((name) => {
-        console.log(chalk.dim(`  - ${name}`))
-    })
+    if (componentsToAdd.length > 10) {
+        console.log(chalk.cyan(`\n📦 Adding ${componentsToAdd.length} components...\n`))
+    } else {
+        console.log(chalk.cyan("\n📦 Adding components:\n"))
+        componentsToAdd.forEach((name) => {
+            console.log(chalk.dim(`  - ${name}`))
+        })
+    }
     console.log()
 
-    if (!options.yes) {
-        const response = await prompts({
-            type: "confirm",
-            name: "proceed",
-            message: "Continue?",
-            initial: true,
-        })
 
-        if (!response.proceed) {
-            console.log(chalk.yellow("Cancelled."))
-            process.exit(0)
-        }
-    }
 
     const spinner = ora("Adding components...").start()
-    const componentsDir = path.join(cwd, "src", "components", "ui")
+
+    // Detect component path
+    const hasSrc = fs.existsSync(path.join(cwd, "src"))
+    const srcPath = hasSrc ? path.join(cwd, "src") : cwd
+    const componentsDir = path.join(srcPath, "components", "ui")
 
     try {
         await fs.ensureDir(componentsDir)
@@ -113,8 +110,20 @@ export async function add(components: string[], options: AddOptions) {
             const targetPath = path.join(componentsDir, comp.file)
 
             if (fs.existsSync(targetPath) && !options.overwrite) {
-                spinner.info(`${chalk.cyan(comp.file)} already exists, skipping (use --overwrite to replace)`)
-                continue
+                spinner.stop()
+                const { overwrite } = await prompts({
+                    type: "confirm",
+                    name: "overwrite",
+                    message: `${chalk.cyan(comp.file)} already exists. Overwrite?`,
+                    initial: false
+                })
+
+                if (!overwrite) {
+                    spinner.info(`Skipped ${chalk.cyan(comp.file)}`)
+                    spinner.start("Adding components...")
+                    continue
+                }
+                spinner.start("Adding components...")
             }
 
             // Get component source from registry folder
@@ -129,7 +138,16 @@ export async function add(components: string[], options: AddOptions) {
 
             const content = await fs.readFile(registryPath, "utf-8")
             await fs.writeFile(targetPath, content)
-            spinner.succeed(`Added ${chalk.cyan(comp.file)}`)
+
+            if (componentsToAdd.length > 10) {
+                spinner.text = `Adding ${chalk.cyan(comp.file)}...`
+            } else {
+                spinner.succeed(`Added ${chalk.cyan(comp.file)}`)
+            }
+        }
+
+        if (componentsToAdd.length > 10) {
+            spinner.succeed(`Added ${componentsToAdd.length} components`)
         }
 
         console.log(chalk.green("\n✅ Components added successfully!\n"))
