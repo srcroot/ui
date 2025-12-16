@@ -1,0 +1,19 @@
+/**
+ * @srcroot/ui Theme Index
+ * 
+ * Available themes:
+ * - neutral.css  - Pure gray, no undertones
+ * - stone.css    - Warm gray with brown undertones
+ * - zinc.css     - Cool gray with subtle blue undertones
+ * - gray.css     - True neutral gray
+ * - slate.css    - Cool gray with strong blue undertones (default)
+ * 
+ * Usage:
+ * Copy the theme file contents into your globals.css or import it:
+ * 
+ * @import '@srcroot/ui/themes/slate.css';
+ * 
+ * Or with the base tokens:
+ * @import '@srcroot/ui/design-tokens.css';
+ * @import '@srcroot/ui/themes/zinc.css';
+ */
