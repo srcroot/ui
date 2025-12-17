@@ -10,7 +10,7 @@ export function Footer() {
             <div className="container mx-auto py-12 md:py-16">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="space-y-4">
-                        <Link href="/" className="flex items-center space-x-2">
+                        <Link href="/" className="w-fit flex justify-start items-center space-x-2">
                             <SrcRootLogo className="text-primary h-10 w-100" />
                         </Link>
                         <p className="text-sm text-muted-foreground">

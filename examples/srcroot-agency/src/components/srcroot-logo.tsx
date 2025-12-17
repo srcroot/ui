@@ -14,7 +14,7 @@ export const SrcRootLogo = ({ className }: { className?: string }) => {
     // Prevent hydration mismatch by rendering a placeholder or default until mounted
     if (!mounted) {
         return (
-            <div className={cn("relative flex items-center justify-center select-none", className)}>
+            <div className={cn("relative  select-none", className)}>
                 <div style={{ width: 100, height: 100 }} /> {/* Layout placeholder */}
             </div>
         )
@@ -24,7 +24,7 @@ export const SrcRootLogo = ({ className }: { className?: string }) => {
     const logoSrc = isDark ? "/srcroot-dark.png" : "/srcroot-light.png"
 
     return (
-        <div className={cn("relative flex items-center justify-center select-none", className)}>
+        <div className={cn("relative select-none", className)}>
             <Image
                 src={logoSrc}
                 alt="SrcRoot Logo"
