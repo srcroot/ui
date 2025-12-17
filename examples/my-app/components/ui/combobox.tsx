@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, X } from "lucide-react"
+import { LuCheck, LuChevronsUpDown, LuX } from "react-icons/lu"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -113,7 +113,7 @@ export function Combobox({
                                             >
                                                 {Icon && <Icon className="h-3 w-3" />}
                                                 {opt.label}
-                                                <X className="h-3 w-3 text-muted-foreground hover:text-foreground ml-0.5" />
+                                                <LuX className="h-3 w-3 text-muted-foreground hover:text-foreground ml-0.5" />
                                             </Badge>
                                         )
                                     })
@@ -131,7 +131,7 @@ export function Combobox({
                             <span className="text-muted-foreground">{placeholder}</span>
                         )}
                     </div>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    <LuChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full min-w-[200px] p-0">
@@ -146,7 +146,7 @@ export function Combobox({
                                     value={option.label}
                                     onSelect={() => handleSelect(option.value)}
                                 >
-                                    <Check
+                                    <LuCheck
                                         className={cn(
                                             "mr-2 h-4 w-4",
                                             multiple

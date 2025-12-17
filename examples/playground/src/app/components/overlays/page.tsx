@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { User, CreditCard, Settings, Bell } from "lucide-react"
+import { LuUser, LuCreditCard, LuSettings, LuBell } from "react-icons/lu"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { LoadingSpinner, LoadingOverlay } from "@/components/ui/loading-spinner"
 import { Toast, ToastTitle, ToastDescription } from "@/components/ui/toast"
@@ -106,16 +106,16 @@ export default function OverlaysPage() {
                                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem>
-                                        <User className="mr-2 h-4 w-4" />
+                                        <LuUser className="mr-2 h-4 w-4" />
                                         <span>Profile</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        <LuCreditCard className="mr-2 h-4 w-4" />
                                         <span>Billing</span>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        <span>Settings</span>
+                                        <LuSettings className="mr-2 h-4 w-4" />
+                                        <span>LuSettings</span>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -128,7 +128,7 @@ export default function OverlaysPage() {
                         </div>
                         <div className="p-6 space-y-4">
                             <Alert>
-                                <Bell className="h-4 w-4" />
+                                <LuBell className="h-4 w-4" />
                                 <AlertTitle>Heads up!</AlertTitle>
                                 <AlertDescription>You can add components using the CLI.</AlertDescription>
                             </Alert>

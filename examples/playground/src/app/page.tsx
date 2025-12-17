@@ -4,53 +4,53 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
-    Type,
-    MousePointerClick,
-    Inbox,
-    LayoutTemplate,
-    Database,
-    Layers,
-    Navigation,
-    Sparkles,
-    Zap,
-    Shield,
-    Palette,
-    Code2,
-    Package,
-    ArrowRight,
-    Github,
-    ExternalLink
-} from "lucide-react"
+    LuType,
+    LuMousePointerClick,
+    LuInbox,
+    LuLayoutTemplate,
+    LuDatabase,
+    LuLayers,
+    LuNavigation,
+    LuSparkles,
+    LuZap,
+    LuShield,
+    LuPalette,
+    LuCode,
+    LuPackage,
+    LuArrowRight,
+    LuGithub,
+    LuExternalLink
+} from "react-icons/lu"
 import Link from "next/link"
 
 const categories = [
-    { title: "Typography", icon: Type, href: "/components/typography", count: 6 },
-    { title: "Buttons", icon: MousePointerClick, href: "/components/buttons", count: 8 },
-    { title: "Forms", icon: Inbox, href: "/components/forms", count: 15 },
-    { title: "Layout", icon: LayoutTemplate, href: "/components/layout", count: 5 },
-    { title: "Data Display", icon: Database, href: "/components/data-display", count: 10 },
-    { title: "Overlays", icon: Layers, href: "/components/overlays", count: 7 },
-    { title: "Navigation", icon: Navigation, href: "/components/navigation", count: 4 },
+    { title: "Typography", icon: LuType, href: "/components/typography", count: 6 },
+    { title: "Buttons", icon: LuMousePointerClick, href: "/components/buttons", count: 8 },
+    { title: "Forms", icon: LuInbox, href: "/components/forms", count: 15 },
+    { title: "Layout", icon: LuLayoutTemplate, href: "/components/layout", count: 5 },
+    { title: "Data Display", icon: LuDatabase, href: "/components/data-display", count: 10 },
+    { title: "Overlays", icon: LuLayers, href: "/components/overlays", count: 7 },
+    { title: "LuNavigation", icon: LuNavigation, href: "/components/navigation", count: 4 },
 ]
 
 const features = [
     {
-        icon: Palette,
+        icon: LuPalette,
         title: "Beautifully Designed",
         description: "Crafted with attention to detail and modern aesthetics.",
     },
     {
-        icon: Code2,
+        icon: LuCode,
         title: "Developer Friendly",
         description: "Clean, readable code with TypeScript support.",
     },
     {
-        icon: Zap,
+        icon: LuZap,
         title: "Blazing Fast",
         description: "Optimized for performance with minimal bundle size.",
     },
     {
-        icon: Shield,
+        icon: LuShield,
         title: "Accessible",
         description: "WAI-ARIA compliant with keyboard navigation.",
     },
@@ -65,7 +65,7 @@ export default function HomePage() {
                 <div className="relative px-6 py-16 lg:py-24">
                     <div className="max-w-4xl mx-auto text-center space-y-6">
                         <Badge variant="secondary" className="px-4 py-1.5">
-                            <Sparkles className="h-3.5 w-3.5 mr-2" />
+                            <LuSparkles className="h-3.5 w-3.5 mr-2" />
                             v1.0.0 — Production Ready
                         </Badge>
 
@@ -83,11 +83,11 @@ export default function HomePage() {
                             <Link href="/components/buttons">
                                 <Button size="lg" className="gap-2">
                                     Get Started
-                                    <ArrowRight className="h-4 w-4" />
+                                    <LuArrowRight className="h-4 w-4" />
                                 </Button>
                             </Link>
                             <Button size="lg" variant="outline" className="gap-2">
-                                <Github className="h-4 w-4" />
+                                <LuGithub className="h-4 w-4" />
                                 View on GitHub
                             </Button>
                         </div>
@@ -167,7 +167,7 @@ export default function HomePage() {
                                         <div className="font-medium">{category.title}</div>
                                         <div className="text-sm text-muted-foreground">{category.count} components</div>
                                     </div>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    <LuArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                                 </div>
                             </Link>
                         ))}
@@ -179,7 +179,7 @@ export default function HomePage() {
             <section className="px-6 py-16">
                 <div className="max-w-2xl mx-auto text-center">
                     <div className="inline-flex items-center gap-2 mb-4">
-                        <Package className="h-5 w-5 text-primary" />
+                        <LuPackage className="h-5 w-5 text-primary" />
                         <span className="font-semibold">Quick Install</span>
                     </div>
                     <div className="bg-zinc-950 text-zinc-50 rounded-lg p-4 font-mono text-sm mb-6">

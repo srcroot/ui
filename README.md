@@ -46,7 +46,7 @@ Install every available component at once.
 npx @srcroot/ui add --all
 ```
 
-This will copy the component files to your `components/ui` directory and install any necessary peer dependencies (like `lucide-react` or `clsx`).
+This will copy the component files to your `components/ui` directory and install any necessary peer dependencies (like `react-icons` or `clsx`).
 
 ### 3. Usage
 

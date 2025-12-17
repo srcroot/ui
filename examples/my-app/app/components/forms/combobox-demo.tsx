@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Calendar, User, CreditCard, Settings, Globe, Palette, Code, Zap, Shield, Database } from "lucide-react"
+import { LuCalendar, LuUser, LuCreditCard, LuSettings, LuGlobe, LuPalette, LuCode, LuZap, LuShield, LuDatabase } from "react-icons/lu"
 
 import { Combobox, ComboboxOption } from "@/components/ui/combobox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,19 +19,19 @@ const frameworks: ComboboxOption[] = [
 ]
 
 const settingsOptions: ComboboxOption[] = [
-    { value: "profile", label: "Profile", icon: User },
-    { value: "billing", label: "Billing", icon: CreditCard },
-    { value: "settings", label: "Settings", icon: Settings },
-    { value: "calendar", label: "Calendar", icon: Calendar },
+    { value: "profile", label: "Profile", icon: LuUser },
+    { value: "billing", label: "Billing", icon: LuCreditCard },
+    { value: "settings", label: "LuSettings", icon: LuSettings },
+    { value: "calendar", label: "LuCalendar", icon: LuCalendar },
 ]
 
 const techStackOptions: ComboboxOption[] = [
-    { value: "frontend", label: "Frontend", icon: Globe },
-    { value: "backend", label: "Backend", icon: Database },
-    { value: "design", label: "Design System", icon: Palette },
-    { value: "devops", label: "DevOps", icon: Code },
-    { value: "security", label: "Security", icon: Shield },
-    { value: "performance", label: "Performance", icon: Zap },
+    { value: "frontend", label: "Frontend", icon: LuGlobe },
+    { value: "backend", label: "Backend", icon: LuDatabase },
+    { value: "design", label: "Design System", icon: LuPalette },
+    { value: "devops", label: "DevOps", icon: LuCode },
+    { value: "security", label: "Security", icon: LuShield },
+    { value: "performance", label: "Performance", icon: LuZap },
 ]
 
 export function ComboboxDemo() {
@@ -103,7 +103,7 @@ export function ComboboxDemo() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex flex-col space-y-2">
-                        <Label htmlFor="settings">Settings Category</Label>
+                        <Label htmlFor="settings">LuSettings Category</Label>
                         <Combobox
                             options={settingsOptions}
                             value={iconValue}

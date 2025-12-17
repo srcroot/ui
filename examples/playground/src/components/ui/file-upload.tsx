@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Upload, X, File, Image, FileText, Film, Music } from "lucide-react"
+import { LuUpload, LuX, LuFile, LuImage, LuFileText, LuFilm, LuMusic } from "react-icons/lu"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -21,11 +21,11 @@ interface UploadedFile {
 }
 
 const getFileIcon = (type: string) => {
-    if (type.startsWith("image/")) return Image
-    if (type.startsWith("video/")) return Film
-    if (type.startsWith("audio/")) return Music
-    if (type.includes("pdf") || type.includes("document")) return FileText
-    return File
+    if (type.startsWith("image/")) return LuImage
+    if (type.startsWith("video/")) return LuFilm
+    if (type.startsWith("audio/")) return LuMusic
+    if (type.includes("pdf") || type.includes("document")) return LuFileText
+    return LuFile
 }
 
 const formatFileSize = (bytes: number): string => {
@@ -163,7 +163,7 @@ export function FileUpload({
                     "flex h-14 w-14 items-center justify-center rounded-full bg-muted transition-colors",
                     isDragging && "bg-primary/10"
                 )}>
-                    <Upload className={cn(
+                    <LuUpload className={cn(
                         "h-6 w-6 text-muted-foreground",
                         isDragging && "text-primary"
                     )} />
@@ -188,7 +188,7 @@ export function FileUpload({
                 <p className="text-sm text-destructive">{error}</p>
             )}
 
-            {/* File List */}
+            {/* LuFile List */}
             {files.length > 0 && (
                 <div className="space-y-2">
                     {files.map((uploadedFile, index) => {
@@ -228,7 +228,7 @@ export function FileUpload({
                                         removeFile(index)
                                     }}
                                 >
-                                    <X className="h-4 w-4" />
+                                    <LuX className="h-4 w-4" />
                                 </Button>
                             </div>
                         )

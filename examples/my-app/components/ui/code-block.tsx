@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, Copy } from "lucide-react"
+import { LuCheck, LuCopy } from "react-icons/lu"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -46,11 +46,11 @@ export function CodeBlock({
                     onClick={copyToClipboard}
                 >
                     {copied ? (
-                        <Check className="h-3.5 w-3.5 text-green-500" />
+                        <LuCheck className="h-3.5 w-3.5 text-green-500" />
                     ) : (
-                        <Copy className="h-3.5 w-3.5" />
+                        <LuCopy className="h-3.5 w-3.5" />
                     )}
-                    <span className="sr-only">Copy code</span>
+                    <span className="sr-only">LuCopy code</span>
                 </Button>
             </div>
 

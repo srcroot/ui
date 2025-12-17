@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { PanelLeft } from "lucide-react"
+import { LuPanelLeft } from "react-icons/lu"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -233,7 +233,7 @@ const SidebarTrigger = React.forwardRef<
             }}
             {...props}
         >
-            <PanelLeft />
+            <LuPanelLeft />
             <span className="sr-only">Toggle Sidebar</span>
         </Button>
     )

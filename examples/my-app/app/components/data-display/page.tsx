@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
+import { LuPlus } from "react-icons/lu"
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel"
 import { Card, CardContent } from "@/components/ui/card"
 import { Image } from "@/components/ui/image"
@@ -128,7 +128,7 @@ export default function DataDisplayPage() {
                                 <CollapsibleTrigger asChild>
                                     <Button variant="outline" className="w-full justify-between">
                                         Can I use this in my project?
-                                        <Plus className="h-4 w-4" />
+                                        <LuPlus className="h-4 w-4" />
                                     </Button>
                                 </CollapsibleTrigger>
                                 <CollapsibleContent className="px-4 py-2 text-muted-foreground">

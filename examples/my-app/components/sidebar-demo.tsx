@@ -1,5 +1,5 @@
 import * as React from "react"
-import { LayoutDashboard, Users, Settings, Mail } from "lucide-react"
+import { LuLayoutDashboard, LuUsers, LuSettings, LuMail } from "react-icons/lu"
 import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 
 export default function SidebarDemo() {
@@ -14,19 +14,19 @@ export default function SidebarDemo() {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton isActive>
-                                    <LayoutDashboard className="h-4 w-4" />
+                                    <LuLayoutDashboard className="h-4 w-4" />
                                     <span>Dashboard</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton>
-                                    <Users className="h-4 w-4" />
+                                    <LuUsers className="h-4 w-4" />
                                     <span>Team</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton>
-                                    <Mail className="h-4 w-4" />
+                                    <LuMail className="h-4 w-4" />
                                     <span>Messages</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
@@ -34,8 +34,8 @@ export default function SidebarDemo() {
                     </SidebarContent>
                     <SidebarFooter>
                         <SidebarMenuButton>
-                            <Settings className="h-4 w-4" />
-                            <span>Settings</span>
+                            <LuSettings className="h-4 w-4" />
+                            <span>LuSettings</span>
                         </SidebarMenuButton>
                     </SidebarFooter>
                 </Sidebar>

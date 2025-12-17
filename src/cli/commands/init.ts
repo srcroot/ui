@@ -681,7 +681,7 @@ export async function init(options: InitOptions) {
       "clsx",
       "tailwind-merge",
       "class-variance-authority",
-      "lucide-react"
+      "react-icons"
     ]
 
     if (!isTailwind4) {

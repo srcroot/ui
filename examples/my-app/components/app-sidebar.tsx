@@ -18,17 +18,17 @@ import {
 } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import {
-    Type,
-    MousePointerClick,
-    Inbox,
-    LayoutTemplate,
-    Database,
-    Layers,
-    Navigation,
-    Component,
-    Settings,
-    User
-} from "lucide-react"
+    LuType,
+    LuMousePointerClick,
+    LuInbox,
+    LuLayoutTemplate,
+    LuDatabase,
+    LuLayers,
+    LuNavigation,
+    LuComponent,
+    LuSettings,
+    LuUser
+} from "react-icons/lu"
 import { cn } from "@/lib/utils"
 
 // Menu items.
@@ -36,37 +36,37 @@ const items = [
     {
         title: "Typography",
         url: "/components/typography",
-        icon: Type,
+        icon: LuType,
     },
     {
         title: "Buttons & Actions",
         url: "/components/buttons",
-        icon: MousePointerClick,
+        icon: LuMousePointerClick,
     },
     {
         title: "Forms & Controls",
         url: "/components/forms",
-        icon: Inbox,
+        icon: LuInbox,
     },
     {
         title: "Layout & Structure",
         url: "/components/layout",
-        icon: LayoutTemplate,
+        icon: LuLayoutTemplate,
     },
     {
         title: "Data Display",
         url: "/components/data-display",
-        icon: Database,
+        icon: LuDatabase,
     },
     {
         title: "Overlays & Feedback",
         url: "/components/overlays",
-        icon: Layers,
+        icon: LuLayers,
     },
     {
-        title: "Navigation",
+        title: "LuNavigation",
         url: "/components/navigation",
-        icon: Navigation,
+        icon: LuNavigation,
     },
 ]
 
@@ -79,7 +79,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             <SidebarHeader>
                 <div className={cn("flex items-center", state === "collapsed" ? "justify-center" : "gap-2 p-2")}>
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <Component className="size-4" />
+                        <LuComponent className="size-4" />
                     </div>
                     {state === "expanded" && (
                         <div className="grid flex-1 text-left text-sm leading-tight">
@@ -113,14 +113,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton>
-                            <Settings />
-                            <span>Settings</span>
+                            <LuSettings />
+                            <span>LuSettings</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                         <SidebarMenuButton>
-                            <User />
-                            <span>User Profile</span>
+                            <LuUser />
+                            <span>LuUser Profile</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

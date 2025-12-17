@@ -23,7 +23,7 @@ import { FileUpload } from "@/components/ui/file-upload"
 import { Toggle } from "@/components/ui/toggle"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { NativeSelect } from "@/components/ui/native-select"
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from "lucide-react"
+import { LuBold, LuItalic, LuUnderline, LuAlignLeft, LuAlignCenter, LuAlignRight } from "react-icons/lu"
 
 export default function FormsPage() {
     const [date, setDate] = React.useState<Date | undefined>(new Date())
@@ -170,13 +170,13 @@ export default function FormsPage() {
                         <Label>Single Toggle</Label>
                         <div className="flex gap-2">
                             <Toggle variant="outline">
-                                <Bold className="h-4 w-4" />
+                                <LuBold className="h-4 w-4" />
                             </Toggle>
                             <Toggle variant="outline">
-                                <Italic className="h-4 w-4" />
+                                <LuItalic className="h-4 w-4" />
                             </Toggle>
                             <Toggle variant="outline">
-                                <Underline className="h-4 w-4" />
+                                <LuUnderline className="h-4 w-4" />
                             </Toggle>
                         </div>
                     </div>
@@ -184,13 +184,13 @@ export default function FormsPage() {
                         <Label>Toggle Group (Single Select)</Label>
                         <ToggleGroup type="single" variant="outline">
                             <ToggleGroupItem value="left">
-                                <AlignLeft className="h-4 w-4" />
+                                <LuAlignLeft className="h-4 w-4" />
                             </ToggleGroupItem>
                             <ToggleGroupItem value="center">
-                                <AlignCenter className="h-4 w-4" />
+                                <LuAlignCenter className="h-4 w-4" />
                             </ToggleGroupItem>
                             <ToggleGroupItem value="right">
-                                <AlignRight className="h-4 w-4" />
+                                <LuAlignRight className="h-4 w-4" />
                             </ToggleGroupItem>
                         </ToggleGroup>
                     </div>
