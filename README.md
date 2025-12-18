@@ -1,6 +1,6 @@
 # @srcroot/ui
 
-A **shadcn-like** React UI library for building accessible, polymorphic web applications.
+A UI library with polymorphic, accessible React components.
 This library provides a collection of re-usable components that you can copy and paste into your apps.
 
 ## Features
