@@ -107,19 +107,21 @@ export async function add(components: string[], options: AddOptions) {
 
         for (const name of componentsToAdd) {
             const comp = REGISTRY[name]
-            const targetPath = path.join(componentsDir, comp.file)
+            // comp.file may include folder prefix (e.g., "ui/button.tsx"), extract just the filename
+            const fileName = path.basename(comp.file)
+            const targetPath = path.join(componentsDir, fileName)
 
             if (fs.existsSync(targetPath) && !options.overwrite) {
                 spinner.stop()
                 const { overwrite } = await prompts({
                     type: "confirm",
                     name: "overwrite",
-                    message: `${chalk.cyan(comp.file)} already exists. Overwrite?`,
+                    message: `${chalk.cyan(fileName)} already exists. Overwrite?`,
                     initial: false
                 })
 
                 if (!overwrite) {
-                    spinner.info(`Skipped ${chalk.cyan(comp.file)}`)
+                    spinner.info(`Skipped ${chalk.cyan(fileName)}`)
                     spinner.start("Adding components...")
                     continue
                 }
@@ -140,9 +142,9 @@ export async function add(components: string[], options: AddOptions) {
             await fs.writeFile(targetPath, content)
 
             if (componentsToAdd.length > 10) {
-                spinner.text = `Adding ${chalk.cyan(comp.file)}...`
+                spinner.text = `Adding ${chalk.cyan(fileName)}...`
             } else {
-                spinner.succeed(`Added ${chalk.cyan(comp.file)}`)
+                spinner.succeed(`Added ${chalk.cyan(fileName)}`)
             }
         }
 
