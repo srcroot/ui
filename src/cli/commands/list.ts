@@ -12,6 +12,7 @@ export async function list() {
         "Data Display": [],
         "Overlay / Feedback": [],
         "Navigation": [],
+        "Analytics": [],
     }
 
     for (const [name, comp] of Object.entries(REGISTRY)) {

@@ -1,59 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-:root {
-  /* Light Mode: Clean White with Brand Purples */
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(240 10% 3.9%);
-
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(240 10% 3.9%);
-
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(240 10% 3.9%);
-
-  /* Brand Purple */
-  --primary: hsl(265 89% 60%);
-  --primary-foreground: hsl(0 0% 98%);
-
-  /* Brand Pink/Magenta for secondary actions */
-  --secondary: hsl(320 85% 96%);
-  --secondary-foreground: hsl(320 90% 45%);
-
-  --muted: hsl(240 5% 96%);
-  --muted-foreground: hsl(240 4% 46%);
-
-  --accent: hsl(240 5% 96%);
-  --accent-foreground: hsl(240 6% 10%);
-
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(0 0% 98%);
-
-  --border: hsl(240 6% 90%);
-  --input: hsl(240 6% 90%);
-  --ring: hsl(265 89% 60%);
-
-  --radius: 0.75rem;
-  /* Slightly more rounded to match the friendly UI */
-
-  /* Sidebar variables */
-  --sidebar-background: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(265 89% 60%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
-
-  --sidebar-width: 16rem;
-  --sidebar-width-mobile: 18rem;
-  --sidebar-width-collapsed: 3rem;
-  --sidebar-width-icon: 3rem;
-  --header-height: 3.5rem;
-}
-
-@theme inline {
+@theme {
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -81,20 +30,21 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
-  --color-sidebar: var(--sidebar-background);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-magenta: var(--brand-magenta);
+  --color-brand-light: var(--brand-light);
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
 
-  /* Accordion Animations */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: Syne, ui-sans-serif, system-ui, sans-serif;
+
+  --animate-fade-up: fadeUp 0.6s ease-out forwards;
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-scale-in: scaleIn 0.4s ease-out forwards;
+  --animate-slide-in: slideIn 0.5s ease-out forwards;
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
@@ -117,60 +67,222 @@
       height: 0;
     }
   }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* 
+  We use standard CSS variables for the content 
+  because Tailwind v4 uses @theme to map them.
+*/
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(250 20% 10%);
+
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(250 20% 10%);
+
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(250 20% 10%);
+
+  --primary: hsl(246 80% 60%);
+  --primary-foreground: hsl(0 0% 100%);
+
+  --secondary: hsl(320 85% 55%);
+  --secondary-foreground: hsl(0 0% 100%);
+
+  --muted: hsl(250 20% 96%);
+  --muted-foreground: hsl(250 10% 45%);
+
+  --accent: hsl(320 85% 55%);
+  --accent-foreground: hsl(0 0% 100%);
+
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(210 40% 98%);
+
+  --border: hsl(250 15% 90%);
+  --input: hsl(250 15% 90%);
+  --ring: hsl(246 80% 60%);
+
+  --radius: 0.75rem;
+
+  /* Custom brand colors */
+  --brand-purple: hsl(246 80% 60%);
+  --brand-magenta: hsl(320 85% 55%);
+  --brand-light: hsl(300 60% 97%);
+
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, hsl(246 80% 60%) 0%, hsl(320 85% 55%) 100%);
+  --gradient-hero: linear-gradient(135deg, hsl(270 60% 95%) 0%, hsl(320 70% 95%) 50%, hsl(246 60% 95%) 100%);
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(300 60% 98%) 100%);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px -2px hsl(246 80% 60% / 0.1);
+  --shadow-md: 0 8px 24px -4px hsl(246 80% 60% / 0.15);
+  --shadow-lg: 0 16px 48px -8px hsl(246 80% 60% / 0.2);
+  --shadow-glow: 0 0 40px hsl(320 85% 55% / 0.3);
+
+  --sidebar-background: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark Mode: The "Pi Junction" Mockup Look */
-    /* Deep Navy/Purple Background */
-    --background: hsl(260 50% 5%);
+    --background: hsl(250 20% 6%);
     --foreground: hsl(0 0% 98%);
 
-    /* Slightly lighter Navy for cards to create depth */
-    --card: hsl(260 40% 10%);
+    --card: hsl(250 20% 8%);
     --card-foreground: hsl(0 0% 98%);
 
-    --popover: hsl(260 40% 10%);
+    --popover: hsl(250 20% 8%);
     --popover-foreground: hsl(0 0% 98%);
 
-    /* Vibrant Electric Purple for Primary Actions (Buttons) */
-    --primary: hsl(270 90% 65%);
-    --primary-foreground: hsl(0 0% 100%);
+    --primary: hsl(246 80% 65%);
+    --primary-foreground: hsl(250 20% 6%);
 
-    /* Hot Pink/Magenta for Secondary highlights */
-    --secondary: hsl(320 80% 60%);
+    --secondary: hsl(320 85% 60%);
     --secondary-foreground: hsl(0 0% 100%);
 
-    /* Muted tones for less important text (Cool Grey/Blue) */
-    --muted: hsl(240 20% 15%);
-    --muted-foreground: hsl(240 10% 65%);
+    --muted: hsl(250 20% 15%);
+    --muted-foreground: hsl(250 10% 60%);
 
-    /* Accent for hovers/selections */
-    --accent: hsl(260 40% 20%);
-    --accent-foreground: hsl(0 0% 98%);
+    --accent: hsl(320 85% 60%);
+    --accent-foreground: hsl(0 0% 100%);
 
     --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(0 0% 98%);
+    --destructive-foreground: hsl(210 40% 98%);
 
-    /* Borders: Subtle Purple/Blue */
-    --border: hsl(260 30% 18%);
-    --input: hsl(260 30% 18%);
-    --ring: hsl(270 90% 65%);
+    --border: hsl(250 20% 18%);
+    --input: hsl(250 20% 18%);
+    --ring: hsl(246 80% 65%);
 
-    /* Sidebar matching the dark theme */
-    --sidebar-background: hsl(260 50% 4%);
-    --sidebar-foreground: hsl(240 5% 96%);
-    --sidebar-primary: hsl(270 90% 65%);
+    --brand-purple: hsl(246 80% 65%);
+    --brand-magenta: hsl(320 85% 60%);
+    --brand-light: hsl(250 20% 12%);
+
+    --gradient-brand: linear-gradient(135deg, hsl(246 80% 65%) 0%, hsl(320 85% 60%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(250 30% 12%) 0%, hsl(320 30% 15%) 50%, hsl(246 30% 12%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(250 20% 10%) 0%, hsl(300 20% 12%) 100%);
+
+    --shadow-sm: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 8px 24px -4px hsl(0 0% 0% / 0.4);
+    --shadow-lg: 0 16px 48px -8px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 40px hsl(320 85% 60% / 0.2);
+
+    --sidebar-background: hsl(240 5.9% 10%);
+    --sidebar-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-primary: hsl(224.3 76.3% 48%);
     --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(260 40% 15%);
-    --sidebar-accent-foreground: hsl(240 5% 96%);
-    --sidebar-border: hsl(260 30% 18%);
-    --sidebar-ring: hsl(270 90% 65%);
+    --sidebar-accent: hsl(240 3.7% 15.9%);
+    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+    --sidebar-border: hsl(240 3.7% 15.9%);
+    --sidebar-ring: hsl(217.2 91.2% 59.8%);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Utilities classes that use the variables */
+@layer utilities {
+  .gradient-brand {
+    background: var(--gradient-brand);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .text-gradient {
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .shadow-brand-sm {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .shadow-brand-md {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-brand-lg {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-bold tracking-tight;
+  }
 }

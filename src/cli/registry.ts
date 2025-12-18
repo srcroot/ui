@@ -56,6 +56,12 @@ export type ComponentName =
     | "scroll-area"
     | "toggle"
     | "toggle-group"
+    | "google-analytics"
+    | "google-tag-manager"
+    | "meta-pixel"
+    | "microsoft-clarity"
+    | "tiktok-pixel"
+    | "chatbot"
 
 interface ComponentConfig {
     file: string
@@ -411,6 +417,42 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Grouped toggle buttons",
         category: "Forms",
         dependencies: ["toggle"],
+    },
+    "google-analytics": {
+        file: "analytics/google-analytics.tsx",
+        description: "Google Analytics 4 tracking",
+        category: "Analytics",
+        dependencies: [],
+    },
+    "google-tag-manager": {
+        file: "analytics/google-tag-manager.tsx",
+        description: "Google Tag Manager integration",
+        category: "Analytics",
+        dependencies: [],
+    },
+    "meta-pixel": {
+        file: "analytics/meta-pixel.tsx",
+        description: "Meta (Facebook) Pixel tracking",
+        category: "Analytics",
+        dependencies: [],
+    },
+    "microsoft-clarity": {
+        file: "analytics/microsoft-clarity.tsx",
+        description: "Microsoft Clarity heatmap tracking",
+        category: "Analytics",
+        dependencies: [],
+    },
+    "tiktok-pixel": {
+        file: "analytics/tiktok-pixel.tsx",
+        description: "TikTok Pixel tracking",
+        category: "Analytics",
+        dependencies: [],
+    },
+    chatbot: {
+        file: "chatbot.tsx",
+        description: "AI chat interface",
+        category: "Data Display",
+        dependencies: ["button", "input", "scroll-area", "avatar"],
     },
 }
 

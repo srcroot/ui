@@ -13,13 +13,6 @@ interface InitOptions {
   theme?: string
 }
 
-const UTILS_CONTENT = `import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-`
 
 // Theme definitions
 const THEMES: Record<string, { name: string; description: string; light: Record<string, string>; dark: Record<string, string> }> = {
@@ -646,7 +639,26 @@ export async function init(options: InitOptions) {
 
     // Create utils.ts
     const utilsPath = path.join(libDir, "utils.ts")
-    await fs.writeFile(utilsPath, UTILS_CONTENT)
+
+    // Read utils.ts from registry
+    const registryUtilsPath = path.resolve(__dirname, "..", "src", "registry", "utils.ts")
+    let utilsContent = ""
+
+    if (fs.existsSync(registryUtilsPath)) {
+      utilsContent = await fs.readFile(registryUtilsPath, "utf-8")
+    } else {
+      // Fallback if registry file not found (e.g. dev environment issue)
+      utilsContent = `import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+`
+      spinner.warn(`Could not find registry/utils.ts, using fallback content.`)
+    }
+
+    await fs.writeFile(utilsPath, utilsContent)
     spinner.succeed(`Created ${chalk.cyan(path.relative(cwd, utilsPath))}`)
 
     // Create or update globals.css with selected theme

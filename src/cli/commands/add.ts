@@ -129,7 +129,7 @@ export async function add(components: string[], options: AddOptions) {
             // Get component source from registry folder
             // When installed via npx: node_modules/@srcroot/ui/dist/index.js
             // Registry is at: node_modules/@srcroot/ui/registry/
-            const registryPath = path.resolve(__dirname, "..", "registry", comp.file)
+            const registryPath = path.resolve(__dirname, "..", "src", "registry", comp.file)
 
             if (!fs.existsSync(registryPath)) {
                 spinner.warn(`Registry file not found for ${name}: ${registryPath}`)
