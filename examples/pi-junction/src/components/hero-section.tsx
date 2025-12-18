@@ -61,7 +61,7 @@ const HERO_SLIDES = [
 export function HeroSection() {
     return (
         <section className="relative w-full h-[clamp(100vh-16rem,100vh,calc(100vh-24rem))] bg-black overflow-hidden">
-            <Carousel className="h-full" autoPlay={5000} loop>
+            <Carousel className="h-full w-full" autoPlay={5000} loop>
                 <CarouselContent className="h-full flex items-center">
                     {HERO_SLIDES.map((slide, index) => (
                         <CarouselItem key={slide.id}>

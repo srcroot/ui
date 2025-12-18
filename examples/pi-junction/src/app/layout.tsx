@@ -7,6 +7,7 @@ import "./globals.css";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider } from "@/components/ui/sidebar";
 import { PiLogo } from "@/components/pi-logo";
 import Link from "next/link";
+import { FloatingChatbot } from "@/components/floating-chatbot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +72,7 @@ export default function RootLayout({
               <Footer />
             </div>
           </CartProvider>
+          <FloatingChatbot />
         </SidebarProvider>
       </body>
     </html >
