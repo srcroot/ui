@@ -73,25 +73,25 @@ interface ComponentConfig {
 export const REGISTRY: Record<ComponentName, ComponentConfig> = {
     // Core
     button: {
-        file: "button.tsx",
+        file: "ui/button.tsx",
         description: "Polymorphic button with variants",
         category: "Core",
         dependencies: [],
     },
     badge: {
-        file: "badge.tsx",
+        file: "ui/badge.tsx",
         description: "Status indicator",
         category: "Core",
         dependencies: [],
     },
     avatar: {
-        file: "avatar.tsx",
+        file: "ui/avatar.tsx",
         description: "User avatar with fallback",
         category: "Core",
         dependencies: [],
     },
     separator: {
-        file: "separator.tsx",
+        file: "ui/separator.tsx",
         description: "Visual divider",
         category: "Core",
         dependencies: [],
@@ -99,13 +99,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Typography
     text: {
-        file: "text.tsx",
+        file: "ui/text.tsx",
         description: "Polymorphic typography",
         category: "Typography",
         dependencies: [],
     },
     label: {
-        file: "label.tsx",
+        file: "ui/label.tsx",
         description: "Form label",
         category: "Typography",
         dependencies: [],
@@ -113,43 +113,43 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Forms
     input: {
-        file: "input.tsx",
+        file: "ui/input.tsx",
         description: "Text input field",
         category: "Forms",
         dependencies: [],
     },
     textarea: {
-        file: "textarea.tsx",
+        file: "ui/textarea.tsx",
         description: "Multi-line text input",
         category: "Forms",
         dependencies: [],
     },
     checkbox: {
-        file: "checkbox.tsx",
+        file: "ui/checkbox.tsx",
         description: "Checkbox input",
         category: "Forms",
         dependencies: [],
     },
     radio: {
-        file: "radio.tsx",
+        file: "ui/radio.tsx",
         description: "Radio button group",
         category: "Forms",
         dependencies: [],
     },
     switch: {
-        file: "switch.tsx",
+        file: "ui/switch.tsx",
         description: "Toggle switch",
         category: "Forms",
         dependencies: [],
     },
     slider: {
-        file: "slider.tsx",
+        file: "ui/slider.tsx",
         description: "Range slider",
         category: "Forms",
         dependencies: [],
     },
     select: {
-        file: "select.tsx",
+        file: "ui/select.tsx",
         description: "Custom select dropdown",
         category: "Forms",
         dependencies: [],
@@ -157,19 +157,19 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Layout
     card: {
-        file: "card.tsx",
+        file: "ui/card.tsx",
         description: "Card container",
         category: "Layout",
         dependencies: [],
     },
     container: {
-        file: "container.tsx",
+        file: "ui/container.tsx",
         description: "Max-width container",
         category: "Layout",
         dependencies: [],
     },
     "aspect-ratio": {
-        file: "aspect-ratio.tsx",
+        file: "ui/aspect-ratio.tsx",
         description: "Maintain aspect ratio",
         category: "Layout",
         dependencies: [],
@@ -177,31 +177,31 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Data Display
     accordion: {
-        file: "accordion.tsx",
+        file: "ui/accordion.tsx",
         description: "Expandable sections",
         category: "Data Display",
         dependencies: [],
     },
     tabs: {
-        file: "tabs.tsx",
+        file: "ui/tabs.tsx",
         description: "Tab navigation",
         category: "Data Display",
         dependencies: [],
     },
     table: {
-        file: "table.tsx",
+        file: "ui/table.tsx",
         description: "Data table",
         category: "Data Display",
         dependencies: [],
     },
     progress: {
-        file: "progress.tsx",
+        file: "ui/progress.tsx",
         description: "Progress indicator",
         category: "Data Display",
         dependencies: [],
     },
     skeleton: {
-        file: "skeleton.tsx",
+        file: "ui/skeleton.tsx",
         description: "Loading placeholder",
         category: "Data Display",
         dependencies: [],
@@ -209,49 +209,49 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Overlay / Feedback
     dialog: {
-        file: "dialog.tsx",
+        file: "ui/dialog.tsx",
         description: "Modal dialog",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     "alert-dialog": {
-        file: "alert-dialog.tsx",
+        file: "ui/alert-dialog.tsx",
         description: "Confirmation dialog",
         category: "Overlay / Feedback",
         dependencies: ["dialog"],
     },
     sheet: {
-        file: "sheet.tsx",
+        file: "ui/sheet.tsx",
         description: "Slide-in panel",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     popover: {
-        file: "popover.tsx",
+        file: "ui/popover.tsx",
         description: "Floating content",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     tooltip: {
-        file: "tooltip.tsx",
+        file: "ui/tooltip.tsx",
         description: "Hover tooltip",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     "dropdown-menu": {
-        file: "dropdown-menu.tsx",
+        file: "ui/dropdown-menu.tsx",
         description: "Action dropdown",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     toast: {
-        file: "toast.tsx",
+        file: "ui/toast.tsx",
         description: "Notification toast",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     alert: {
-        file: "alert.tsx",
+        file: "ui/alert.tsx",
         description: "Inline alert",
         category: "Overlay / Feedback",
         dependencies: [],
@@ -259,13 +259,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Navigation
     breadcrumb: {
-        file: "breadcrumb.tsx",
+        file: "ui/breadcrumb.tsx",
         description: "Breadcrumb navigation",
         category: "Navigation",
         dependencies: [],
     },
     pagination: {
-        file: "pagination.tsx",
+        file: "ui/pagination.tsx",
         description: "Page navigation",
         category: "Navigation",
         dependencies: ["button"],
@@ -273,61 +273,61 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // New Components
     "loading-spinner": {
-        file: "loading-spinner.tsx",
+        file: "ui/loading-spinner.tsx",
         description: "Loading spinner with variants",
         category: "Feedback",
         dependencies: [],
     },
     image: {
-        file: "image.tsx",
+        file: "ui/image.tsx",
         description: "Enhanced image with loading",
         category: "Data Display",
         dependencies: [],
     },
     "button-group": {
-        file: "button-group.tsx",
+        file: "ui/button-group.tsx",
         description: "Group buttons together",
         category: "Core",
         dependencies: ["button"],
     },
     "otp-input": {
-        file: "otp-input.tsx",
+        file: "ui/otp-input.tsx",
         description: "OTP verification input",
         category: "Forms",
         dependencies: [],
     },
     search: {
-        file: "search.tsx",
+        file: "ui/search.tsx",
         description: "Search input with debounce",
         category: "Forms",
         dependencies: [],
     },
     "star-rating": {
-        file: "star-rating.tsx",
+        file: "ui/star-rating.tsx",
         description: "Star rating input",
         category: "Feedback",
         dependencies: [],
     },
     collapsible: {
-        file: "collapsible.tsx",
+        file: "ui/collapsible.tsx",
         description: "Expandable section",
         category: "Data Display",
         dependencies: [],
     },
     carousel: {
-        file: "carousel.tsx",
+        file: "ui/carousel.tsx",
         description: "Image/content slider",
         category: "Data Display",
         dependencies: [],
     },
     calendar: {
-        file: "calendar.tsx",
+        file: "ui/calendar.tsx",
         description: "Date picker",
         category: "Forms",
         dependencies: [],
     },
     sidebar: {
-        file: "sidebar.tsx",
+        file: "ui/sidebar.tsx",
         description: "Responsive sidebar with mobile drawer",
         category: "Layout",
         dependencies: ["sheet", "button"],
@@ -335,85 +335,85 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
 
     // Added Components
     combobox: {
-        file: "combobox.tsx",
+        file: "ui/combobox.tsx",
         description: "Searchable select with autocomplete",
         category: "Forms",
         dependencies: ["popover"],
     },
     command: {
-        file: "command.tsx",
+        file: "ui/command.tsx",
         description: "Command palette / search menu",
         category: "Navigation",
         dependencies: [],
     },
     "context-menu": {
-        file: "context-menu.tsx",
+        file: "ui/context-menu.tsx",
         description: "Right-click context menu",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     "date-picker": {
-        file: "date-picker.tsx",
+        file: "ui/date-picker.tsx",
         description: "Date picker with calendar",
         category: "Forms",
         dependencies: ["calendar", "popover", "button"],
     },
     drawer: {
-        file: "drawer.tsx",
+        file: "ui/drawer.tsx",
         description: "Bottom/top sheet drawer",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     "file-upload": {
-        file: "file-upload.tsx",
+        file: "ui/file-upload.tsx",
         description: "Drag-and-drop file upload",
         category: "Forms",
         dependencies: [],
     },
     "hover-card": {
-        file: "hover-card.tsx",
+        file: "ui/hover-card.tsx",
         description: "Hover-triggered popover",
         category: "Overlay / Feedback",
         dependencies: [],
     },
     kbd: {
-        file: "kbd.tsx",
+        file: "ui/kbd.tsx",
         description: "Keyboard shortcut display",
         category: "Typography",
         dependencies: [],
     },
     menubar: {
-        file: "menubar.tsx",
+        file: "ui/menubar.tsx",
         description: "Horizontal menu with dropdowns",
         category: "Navigation",
         dependencies: [],
     },
     "native-select": {
-        file: "native-select.tsx",
+        file: "ui/native-select.tsx",
         description: "Styled browser-native select",
         category: "Forms",
         dependencies: [],
     },
     resizable: {
-        file: "resizable.tsx",
+        file: "ui/resizable.tsx",
         description: "Resizable panel layout",
         category: "Layout",
         dependencies: [],
     },
     "scroll-area": {
-        file: "scroll-area.tsx",
+        file: "ui/scroll-area.tsx",
         description: "Custom scrollbar container",
         category: "Layout",
         dependencies: [],
     },
     toggle: {
-        file: "toggle.tsx",
+        file: "ui/toggle.tsx",
         description: "Toggle button",
         category: "Forms",
         dependencies: [],
     },
     "toggle-group": {
-        file: "toggle-group.tsx",
+        file: "ui/toggle-group.tsx",
         description: "Grouped toggle buttons",
         category: "Forms",
         dependencies: ["toggle"],
@@ -449,7 +449,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         dependencies: [],
     },
     chatbot: {
-        file: "chatbot.tsx",
+        file: "ui/chatbot.tsx",
         description: "AI chat interface",
         category: "Data Display",
         dependencies: ["button", "input", "scroll-area", "avatar"],

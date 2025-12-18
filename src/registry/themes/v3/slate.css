@@ -1,7 +1,11 @@
 /**
- * @srcroot/ui - Slate Theme
+ * @srcroot/ui - Slate Theme (Tailwind 3)
  * Cool gray with strong blue undertones (shadcn default)
  */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
     :root {
@@ -106,5 +110,45 @@
         --sidebar-accent-foreground: 210 40% 98%;
         --sidebar-border: 217.2 32.6% 17.5%;
         --sidebar-ring: 212.7 26.8% 83.9%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    .animate-accordion-down {
+        animation: accordion-down 0.2s ease-out;
+    }
+
+    .animate-accordion-up {
+        animation: accordion-up 0.2s ease-out;
     }
 }

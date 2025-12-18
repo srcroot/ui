@@ -1,7 +1,11 @@
 /**
- * @srcroot/ui - Gray Theme
+ * @srcroot/ui - Gray Theme (Tailwind 3)
  * True neutral gray (the default)
  */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
     :root {
@@ -106,5 +110,45 @@
         --sidebar-accent-foreground: 210 20% 98%;
         --sidebar-border: 215 27.9% 16.9%;
         --sidebar-ring: 216 12.2% 83.9%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    .animate-accordion-down {
+        animation: accordion-down 0.2s ease-out;
+    }
+
+    .animate-accordion-up {
+        animation: accordion-up 0.2s ease-out;
     }
 }
