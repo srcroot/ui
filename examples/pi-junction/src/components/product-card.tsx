@@ -44,14 +44,14 @@ export function ProductCard({ product }: ProductCardProps) {
     }
 
     return (
-        <Card className="flex flex-col overflow-hidden h-full group">
+        <Card className="flex flex-col overflow-hidden h-full group border-none">
             <CardHeader className="p-0 w-full">
                 <Link href={`/products/${product.id}`}>
                     <Image
                         src={product.image}
                         alt={product.name}
                         width={400}
-                        height={600}
+                        height={500}
                         className="object-cover w-full h-full transition-transform group-hover:scale-105 duration-300"
                     />
                 </Link>

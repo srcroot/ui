@@ -11,28 +11,28 @@ const FEATURED_PRODUCTS = [
     name: "Quantum Processor X1",
     description: "Next-gen computing power for the AI era. Unmatched speed and efficiency.",
     price: "$1,299",
-    image: "https://placehold.co/400x600.png",
+    image: "https://placehold.co/400x500.png",
   },
   {
     id: "2",
     name: "Neural Link Headset",
     description: "Immersive interface for direct neural control. Experience the metaverse like never before.",
     price: "$599",
-    image: "https://placehold.co/400x600.png",
+    image: "https://placehold.co/400x500.png",
   },
   {
     id: "3",
     name: "Holographic Display Module",
     description: "3D volumetric display for engineering and design applications. Crystal clear resolution.",
     price: "$899",
-    image: "https://placehold.co/400x600.png",
+    image: "https://placehold.co/400x500.png",
   },
   {
     id: "4",
     name: "Cybernetic Arm v3",
     description: "Enhance your capabilities with this durable, responsive cybernetic limb.",
     price: "$2,499",
-    image: "https://placehold.co/400x600.png",
+    image: "https://placehold.co/400x500.png",
   },
 ]
 
