@@ -1,11 +1,12 @@
 import fs from "fs-extra"
 import path from "path"
-import chalk from "chalk"
 import ora from "ora"
 import prompts from "prompts"
 import { fileURLToPath } from "url"
 import { ThemeService } from "./theme-service.js"
 import { TAILWIND_CONFIG } from "../utils/templates.js"
+import { getPackageManager } from "../utils/get-package-manager.js"
+import { logger } from "../utils/logger.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -43,7 +44,7 @@ export class ProjectInitializer {
     }
 
     public async run() {
-        console.log(chalk.cyan("\n🚀 Initializing @srcroot/ui...\n"))
+        logger.info("\n🚀 Initializing @srcroot/ui...\n")
 
         await this.validateEnvironment()
         await this.detectConfiguration()
@@ -57,7 +58,7 @@ export class ProjectInitializer {
         const packageJsonPath = path.join(cwd, "package.json")
 
         if (!fs.existsSync(packageJsonPath)) {
-            console.log(chalk.red("Error: No package.json found. Please run this in a project directory."))
+            logger.error("Error: No package.json found. Please run this in a project directory.")
             process.exit(1)
         }
 
@@ -65,7 +66,7 @@ export class ProjectInitializer {
         const allDeps = { ...pkg.dependencies, ...pkg.devDependencies }
 
         if (!allDeps["react"]) {
-            console.log(chalk.red("Error: React not found in dependencies. Please initialize this in a React project."))
+            logger.error("Error: React not found in dependencies. Please initialize this in a React project.")
             process.exit(1)
         }
     }
@@ -74,12 +75,8 @@ export class ProjectInitializer {
         const cwd = path.resolve(this.options.cwd)
 
         // Detect Package Manager
-        const userAgent = process.env.npm_config_user_agent || ""
-        const isYarn = userAgent.includes("yarn")
-        const isPnpm = userAgent.includes("pnpm")
-        const isBun = userAgent.includes("bun")
-        const packageManager = isPnpm ? "pnpm" : isYarn ? "yarn" : isBun ? "bun" : "npm"
-        const installCmd = isPnpm ? "add" : isYarn ? "add" : isBun ? "add" : "install"
+        const packageManager = getPackageManager()
+        const installCmd = packageManager === "npm" ? "install" : "add"
 
         // Detect Tailwind Version
         const pkg = await fs.readJson(path.join(cwd, "package.json"))
@@ -136,13 +133,13 @@ export class ProjectInitializer {
             const availableThemes = this.themeService.getAvailableThemes()
 
             if (availableThemes.length === 0) {
-                console.log(chalk.yellow("Warning: No themes found in registry. Using default."))
+                logger.warn("Warning: No themes found in registry. Using default.")
                 this.config.selectedTheme = selectedTheme
                 return
             }
 
             const themeChoices = availableThemes.map((theme) => ({
-                title: `${theme.name} - ${chalk.dim(theme.description)}`,
+                title: `${theme.name} - ${theme.description}`,
                 value: theme.file.replace(".css", ""),
             }))
 
@@ -190,17 +187,17 @@ export function cn(...inputs: ClassValue[]) {
             }
 
             await fs.writeFile(utilsPath, utilsContent)
-            spinner.succeed(`Created ${chalk.cyan(path.relative(cfg.cwd, utilsPath))}`)
+            spinner.succeed(`Created ${path.relative(cfg.cwd, utilsPath)}`)
 
             // Create/Update globals.css using ThemeService
-            spinner.start(`Setting up ${chalk.cyan(cfg.selectedTheme)} theme...`)
+            spinner.start(`Setting up ${cfg.selectedTheme} theme...`)
             const stylesDir = path.dirname(cfg.globalsPath)
             await fs.ensureDir(stylesDir)
 
             try {
                 const cssContent = await this.themeService.getThemeCss(cfg.selectedTheme, cfg.isTailwind4)
                 await fs.writeFile(cfg.globalsPath, cssContent)
-                spinner.succeed(`Updated ${chalk.cyan(path.relative(cfg.cwd, cfg.globalsPath))} with ${chalk.cyan(cfg.selectedTheme)} theme (${cfg.isTailwind4 ? "Tailwind 4" : "Tailwind 3"})`)
+                spinner.succeed(`Updated ${path.relative(cfg.cwd, cfg.globalsPath)} with ${cfg.selectedTheme} theme (${cfg.isTailwind4 ? "Tailwind 4" : "Tailwind 3"})`)
             } catch (error) {
                 spinner.fail(`Failed to load theme: ${cfg.selectedTheme}`)
                 console.error(error)
@@ -212,9 +209,9 @@ export function cn(...inputs: ClassValue[]) {
                 spinner.start("Setting up Tailwind config...")
                 const tailwindConfigPath = path.join(cfg.cwd, "tailwind.config.ts")
                 await fs.writeFile(tailwindConfigPath, TAILWIND_CONFIG)
-                spinner.succeed(`Created ${chalk.cyan("tailwind.config.ts")}`)
+                spinner.succeed(`Created tailwind.config.ts`)
             } else {
-                spinner.info(`Tailwind 4 detected - skipping ${chalk.cyan("tailwind.config.ts")}`)
+                spinner.info(`Tailwind 4 detected - skipping tailwind.config.ts`)
             }
 
         } catch (error) {
@@ -227,9 +224,9 @@ export function cn(...inputs: ClassValue[]) {
     private printSuccess() {
         const cfg = this.config as ProjectConfig
 
-        console.log(chalk.green("\n✅ Project initialized successfully!\n"))
-        console.log(`Theme: ${chalk.cyan(cfg.selectedTheme)}`)
-        console.log(`Tailwind: ${chalk.cyan(cfg.isTailwind4 ? "v4" : "v3")}`)
+        logger.success("\n✅ Project initialized successfully!\n")
+        console.log(`Theme: ${cfg.selectedTheme}`)
+        console.log(`Tailwind: ${cfg.isTailwind4 ? "v4" : "v3"}`)
 
         const requiredDeps = [
             "clsx",
@@ -242,13 +239,13 @@ export function cn(...inputs: ClassValue[]) {
             requiredDeps.push("tailwindcss-animate")
         }
 
-        console.log(chalk.cyan("\n📦 Required dependencies:"))
-        console.log(chalk.dim(`  ${cfg.packageManager} ${cfg.installCmd} ${requiredDeps.join(" ")}`))
+        logger.info("\n📦 Required dependencies:")
+        console.log(`  ${cfg.packageManager} ${cfg.installCmd} ${requiredDeps.join(" ")}`)
 
         console.log("\n✨ Next steps:")
-        console.log(chalk.dim("  1. Install dependencies (command above)"))
-        console.log(chalk.dim("  2. npx @srcroot/ui add button"))
-        console.log(chalk.dim("  3. npx @srcroot/ui add --all"))
+        console.log("  1. Install dependencies (command above)")
+        console.log("  2. npx @srcroot/ui add button")
+        console.log("  3. npx @srcroot/ui add --all")
         console.log()
     }
 }

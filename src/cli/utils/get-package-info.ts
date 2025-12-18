@@ -1,8 +1,9 @@
 import path from "path"
 import fs from "fs-extra"
 import { fileURLToPath } from "url"
+import type { PackageJson } from "type-fest"
 
-export function getPackageInfo() {
+export function getPackageInfo(): PackageJson {
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = path.dirname(__filename)
 
@@ -17,10 +18,10 @@ export function getPackageInfo() {
 
     for (const pkgPath of pathsToCheck) {
         if (fs.existsSync(pkgPath)) {
-            return fs.readJSONSync(pkgPath)
+            return fs.readJSONSync(pkgPath) as PackageJson
         }
     }
 
     // Fallback version if package.json cannot be found (shouldn't happen in valid install)
-    return { version: "0.0.0" }
+    return { version: "0.0.0" } as PackageJson
 }

@@ -1,10 +1,10 @@
 import fs from "fs-extra"
 import path from "path"
-import chalk from "chalk"
 import ora from "ora"
 import prompts from "prompts"
 import { fileURLToPath } from "url"
 import { REGISTRY, type ComponentName } from "../registry.js"
+import { logger } from "../utils/logger.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -37,7 +37,7 @@ export async function add(components: string[], options: AddOptions) {
         })
 
         if (!items || items.length === 0) {
-            console.log(chalk.yellow("No components selected."))
+            logger.warn("No components selected.")
             process.exit(0)
         }
 
@@ -57,8 +57,8 @@ export async function add(components: string[], options: AddOptions) {
     }
 
     if (invalidComponents.length > 0) {
-        console.log(chalk.red(`Unknown components: ${invalidComponents.join(", ")}`))
-        console.log(chalk.dim("\nRun '@srcroot/ui list' to see available components."))
+        logger.error(`Unknown components: ${invalidComponents.join(", ")}`)
+        console.log("\nRun '@srcroot/ui list' to see available components.")
         process.exit(1)
     }
 
@@ -84,16 +84,14 @@ export async function add(components: string[], options: AddOptions) {
     const componentsToAdd = Array.from(toInstall)
 
     if (componentsToAdd.length > 10) {
-        console.log(chalk.cyan(`\n📦 Adding ${componentsToAdd.length} components...\n`))
+        logger.info(`\n📦 Adding ${componentsToAdd.length} components...\n`)
     } else {
-        console.log(chalk.cyan("\n📦 Adding components:\n"))
+        logger.info("\n📦 Adding components:\n")
         componentsToAdd.forEach((name) => {
-            console.log(chalk.dim(`  - ${name}`))
+            console.log(`  - ${name}`)
         })
     }
     console.log()
-
-
 
     const spinner = ora("Adding components...").start()
 
@@ -116,12 +114,12 @@ export async function add(components: string[], options: AddOptions) {
                 const { overwrite } = await prompts({
                     type: "confirm",
                     name: "overwrite",
-                    message: `${chalk.cyan(fileName)} already exists. Overwrite?`,
+                    message: `${fileName} already exists. Overwrite?`,
                     initial: false
                 })
 
                 if (!overwrite) {
-                    spinner.info(`Skipped ${chalk.cyan(fileName)}`)
+                    spinner.info(`Skipped ${fileName}`)
                     spinner.start("Adding components...")
                     continue
                 }
@@ -129,8 +127,6 @@ export async function add(components: string[], options: AddOptions) {
             }
 
             // Get component source from registry folder
-            // When installed via npx: node_modules/@srcroot/ui/dist/index.js
-            // Registry is at: node_modules/@srcroot/ui/registry/
             const registryPath = path.resolve(__dirname, "..", "src", "registry", comp.file)
 
             if (!fs.existsSync(registryPath)) {
@@ -142,9 +138,9 @@ export async function add(components: string[], options: AddOptions) {
             await fs.writeFile(targetPath, content)
 
             if (componentsToAdd.length > 10) {
-                spinner.text = `Adding ${chalk.cyan(fileName)}...`
+                spinner.text = `Adding ${fileName}...`
             } else {
-                spinner.succeed(`Added ${chalk.cyan(fileName)}`)
+                spinner.succeed(`Added ${fileName}`)
             }
         }
 
@@ -152,7 +148,7 @@ export async function add(components: string[], options: AddOptions) {
             spinner.succeed(`Added ${componentsToAdd.length} components`)
         }
 
-        console.log(chalk.green("\n✅ Components added successfully!\n"))
+        logger.success("\n✅ Components added successfully!\n")
 
     } catch (error) {
         spinner.fail("Failed to add components")
