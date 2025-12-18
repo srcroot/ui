@@ -4,9 +4,11 @@ import { cn } from "@/lib/utils"
 
 interface CarouselContextValue {
     currentIndex: number
-    setCurrentIndex: (index: number) => void
+    setCurrentIndex: React.Dispatch<React.SetStateAction<number>>
     itemsCount: number
-    setItemsCount: (count: number) => void
+    setItemsCount: React.Dispatch<React.SetStateAction<number>>
+    isTransitioning: boolean
+    setIsTransitioning: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CarouselContext = React.createContext<CarouselContextValue | null>(null)
@@ -14,44 +16,42 @@ const CarouselContext = React.createContext<CarouselContextValue | null>(null)
 interface CarouselProps extends React.HTMLAttributes<HTMLDivElement> {
     /** Auto-play interval in ms (0 to disable) */
     autoPlay?: number
-    /** Loop back to start */
+    /** Loop back to start (ignored in this infinite implementation as it's always true-ish, but kept for API) */
     loop?: boolean
 }
 
 /**
- * Carousel/Slider component
- * 
- * @example
- * <Carousel>
- *   <CarouselContent>
- *     <CarouselItem>Slide 1</CarouselItem>
- *     <CarouselItem>Slide 2</CarouselItem>
- *   </CarouselContent>
- *   <CarouselPrevious />
- *   <CarouselNext />
- * </Carousel>
+ * Carousel/Slider component with Infinite Looping
  */
 const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
     ({ className, children, autoPlay = 0, loop = true, ...props }, ref) => {
-        const [currentIndex, setCurrentIndex] = React.useState(0)
+        // Start at 1 because 0 is the clone of the last item
+        const [currentIndex, setCurrentIndex] = React.useState(1)
         const [itemsCount, setItemsCount] = React.useState(0)
+        const [isTransitioning, setIsTransitioning] = React.useState(true)
+        const intervalRef = React.useRef<NodeJS.Timeout | null>(null)
 
         React.useEffect(() => {
-            if (autoPlay > 0 && itemsCount > 0) {
-                const interval = setInterval(() => {
-                    setCurrentIndex((prev) => {
-                        if (prev >= itemsCount - 1) {
-                            return loop ? 0 : prev
-                        }
-                        return prev + 1
-                    })
+            if (autoPlay > 0 && itemsCount > 1) {
+                intervalRef.current = setInterval(() => {
+                    setIsTransitioning(true)
+                    setCurrentIndex((prev) => prev + 1)
                 }, autoPlay)
-                return () => clearInterval(interval)
+                return () => {
+                    if (intervalRef.current) clearInterval(intervalRef.current)
+                }
             }
-        }, [autoPlay, itemsCount, loop])
+        }, [autoPlay, itemsCount])
 
         return (
-            <CarouselContext.Provider value={{ currentIndex, setCurrentIndex, itemsCount, setItemsCount }}>
+            <CarouselContext.Provider value={{
+                currentIndex,
+                setCurrentIndex,
+                itemsCount,
+                setItemsCount,
+                isTransitioning,
+                setIsTransitioning
+            }}>
                 <div
                     ref={ref}
                     className={cn("relative", className)}
@@ -72,19 +72,59 @@ const CarouselContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
         const context = React.useContext(CarouselContext)
         if (!context) throw new Error("CarouselContent must be used within Carousel")
 
-        const childrenArray = React.Children.toArray(children)
+        const items = React.Children.toArray(children)
 
         React.useEffect(() => {
-            context.setItemsCount(childrenArray.length)
-        }, [childrenArray.length, context])
+            context.setItemsCount(items.length)
+        }, [items.length, context])
+
+        // Clone first and last items for infinite loop illusion
+        const firstClone = items.length > 0 && React.isValidElement(items[0])
+            ? React.cloneElement(items[0] as React.ReactElement, { key: "clone-first" })
+            : null
+        const lastClone = items.length > 0 && React.isValidElement(items[items.length - 1])
+            ? React.cloneElement(items[items.length - 1] as React.ReactElement, { key: "clone-last" })
+            : null
+
+        // If we have items, prepend last-clone and append first-clone
+        const displayItems = items.length > 1 ? [lastClone, ...items, firstClone] : items
+
+        const handleTransitionEnd = () => {
+            if (items.length <= 1) return
+
+            // If reached the end clone (index = N + 1), snap back to first real item (index = 1)
+            if (context.currentIndex >= items.length + 1) {
+                context.setIsTransitioning(false)
+                context.setCurrentIndex(1)
+            }
+            // If reached the start clone (index = 0), snap forward to last real item (index = N)
+            else if (context.currentIndex <= 0) {
+                context.setIsTransitioning(false)
+                context.setCurrentIndex(items.length)
+            }
+        }
+
+        // Re-enable transition after a snap (on next frame)
+        React.useEffect(() => {
+            if (!context.isTransitioning) {
+                const timer = setTimeout(() => {
+                    context.setIsTransitioning(true)
+                }, 50)
+                return () => clearTimeout(timer)
+            }
+        }, [context.isTransitioning, context])
 
         return (
             <div ref={ref} className={cn("overflow-hidden", className)} {...props}>
                 <div
-                    className="w-full h-full flex transition-transform duration-300 ease-in-out"
-                    style={{ transform: `translateX(-${context.currentIndex * 100}%)` }}
+                    className="flex h-full w-full"
+                    style={{
+                        transform: `translateX(-${context.currentIndex * 100}%)`,
+                        transition: context.isTransitioning ? 'transform 300ms ease-in-out' : 'none'
+                    }}
+                    onTransitionEnd={handleTransitionEnd}
                 >
-                    {children}
+                    {displayItems}
                 </div>
             </div>
         )
@@ -112,7 +152,10 @@ const CarouselPrevious = React.forwardRef<
     const context = React.useContext(CarouselContext)
     if (!context) throw new Error("CarouselPrevious must be used within Carousel")
 
-    const canGoPrev = context.currentIndex > 0
+    const handlePrev = () => {
+        context.setIsTransitioning(true)
+        context.setCurrentIndex((prev) => prev - 1)
+    }
 
     return (
         <button
@@ -123,8 +166,7 @@ const CarouselPrevious = React.forwardRef<
                 "hover:bg-accent disabled:opacity-50",
                 className
             )}
-            disabled={!canGoPrev}
-            onClick={() => context.setCurrentIndex(context.currentIndex - 1)}
+            onClick={handlePrev}
             aria-label="Previous slide"
             {...props}
         >
@@ -143,7 +185,10 @@ const CarouselNext = React.forwardRef<
     const context = React.useContext(CarouselContext)
     if (!context) throw new Error("CarouselNext must be used within Carousel")
 
-    const canGoNext = context.currentIndex < context.itemsCount - 1
+    const handleNext = () => {
+        context.setIsTransitioning(true)
+        context.setCurrentIndex((prev) => prev + 1)
+    }
 
     return (
         <button
@@ -154,8 +199,7 @@ const CarouselNext = React.forwardRef<
                 "hover:bg-accent disabled:opacity-50",
                 className
             )}
-            disabled={!canGoNext}
-            onClick={() => context.setCurrentIndex(context.currentIndex + 1)}
+            onClick={handleNext}
             aria-label="Next slide"
             {...props}
         >
