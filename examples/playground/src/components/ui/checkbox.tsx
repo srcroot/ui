@@ -14,6 +14,10 @@ interface CheckboxProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
      * Whether the checkbox is disabled
      */
     disabled?: boolean
+    /**
+     * The default checked state (for uncontrolled mode)
+     */
+    defaultChecked?: boolean
 }
 
 /**
@@ -24,10 +28,18 @@ interface CheckboxProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElemen
  * <Checkbox checked={checked} onCheckedChange={setChecked} />
  */
 const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
-    ({ className, checked = false, onCheckedChange, disabled, ...props }, ref) => {
+    ({ className, checked: controlledChecked, defaultChecked = false, onCheckedChange, disabled, ...props }, ref) => {
+        const [isChecked, setIsChecked] = React.useState(defaultChecked)
+
+        const checked = controlledChecked !== undefined ? controlledChecked : isChecked
+
         const handleClick = () => {
             if (!disabled) {
-                onCheckedChange?.(!checked)
+                const newChecked = !checked
+                if (controlledChecked === undefined) {
+                    setIsChecked(newChecked)
+                }
+                onCheckedChange?.(newChecked)
             }
         }
 

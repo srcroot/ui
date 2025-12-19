@@ -43,6 +43,8 @@ export type ComponentName =
     | "sidebar"
     // Added components
     | "combobox"
+    | "form-field"
+    | "input-group"
     | "command"
     | "context-menu"
     | "date-picker"
@@ -119,6 +121,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Text input field",
         category: "Forms",
         dependencies: [],
+        registryDependencies: ["react-icons"],
     },
     textarea: {
         file: "ui/textarea.tsx",
@@ -341,6 +344,18 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Searchable select with autocomplete",
         category: "Forms",
         dependencies: ["popover", "command", "button", "badge"],
+    },
+    "form-field": {
+        file: "ui/form-field.tsx",
+        description: "Wrapper for form inputs with label and error",
+        category: "Forms",
+        dependencies: ["label"],
+    },
+    "input-group": {
+        file: "ui/input-group.tsx",
+        description: "Input with add-ons",
+        category: "Forms",
+        dependencies: ["input"],
     },
     command: {
         file: "ui/command.tsx",
