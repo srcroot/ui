@@ -3,6 +3,7 @@ import path from "path"
 import ora from "ora"
 import prompts from "prompts"
 import { fileURLToPath } from "url"
+import { execa } from "execa"
 import { ThemeService } from "./theme-service.js"
 import { TAILWIND_CONFIG } from "../utils/templates.js"
 import { getPackageManager } from "../utils/get-package-manager.js"
@@ -50,6 +51,7 @@ export class ProjectInitializer {
         await this.detectConfiguration()
         await this.promptUser()
         await this.scaffold()
+        await this.installDependencies()
         this.printSuccess()
     }
 
@@ -75,7 +77,7 @@ export class ProjectInitializer {
         const cwd = path.resolve(this.options.cwd)
 
         // Detect Package Manager
-        const packageManager = getPackageManager()
+        const packageManager = getPackageManager(cwd)
         const installCmd = packageManager === "npm" ? "install" : "add"
 
         // Detect Tailwind Version
@@ -139,7 +141,7 @@ export class ProjectInitializer {
             }
 
             const themeChoices = availableThemes.map((theme) => ({
-                title: `${theme.name} - ${theme.description}`,
+                title: theme.name,
                 value: theme.file.replace(".css", ""),
             }))
 
@@ -210,14 +212,40 @@ export function cn(...inputs: ClassValue[]) {
                 const tailwindConfigPath = path.join(cfg.cwd, "tailwind.config.ts")
                 await fs.writeFile(tailwindConfigPath, TAILWIND_CONFIG)
                 spinner.succeed(`Created tailwind.config.ts`)
-            } else {
-                spinner.info(`Tailwind 4 detected - skipping tailwind.config.ts`)
+                // Skip tailwind.config.ts for TW4 (no message needed)
             }
 
         } catch (error) {
             spinner.fail("Failed to initialize project")
             console.error(error)
             process.exit(1)
+        }
+    }
+
+    private async installDependencies() {
+        const cfg = this.config as ProjectConfig
+        const spinner = ora("Installing dependencies...").start()
+
+        const deps = [
+            "clsx",
+            "tailwind-merge",
+            "class-variance-authority",
+            "react-icons"
+        ]
+
+        if (!cfg.isTailwind4) {
+            deps.push("tailwindcss-animate")
+        }
+
+        try {
+            await execa(cfg.packageManager, [cfg.installCmd, ...deps], {
+                cwd: cfg.cwd,
+                stdio: "pipe"
+            })
+            spinner.succeed(`Installed ${deps.length} dependencies`)
+        } catch (error) {
+            spinner.fail("Failed to install dependencies")
+            logger.warn(`\nManually run: ${cfg.packageManager} ${cfg.installCmd} ${deps.join(" ")}`)
         }
     }
 
@@ -228,24 +256,9 @@ export function cn(...inputs: ClassValue[]) {
         console.log(`Theme: ${cfg.selectedTheme}`)
         console.log(`Tailwind: ${cfg.isTailwind4 ? "v4" : "v3"}`)
 
-        const requiredDeps = [
-            "clsx",
-            "tailwind-merge",
-            "class-variance-authority",
-            "react-icons"
-        ]
-
-        if (!cfg.isTailwind4) {
-            requiredDeps.push("tailwindcss-animate")
-        }
-
-        logger.info("\n📦 Required dependencies:")
-        console.log(`  ${cfg.packageManager} ${cfg.installCmd} ${requiredDeps.join(" ")}`)
-
         console.log("\n✨ Next steps:")
-        console.log("  1. Install dependencies (command above)")
-        console.log("  2. npx @srcroot/ui add button")
-        console.log("  3. npx @srcroot/ui add --all")
+        console.log("  1. npx @srcroot/ui add button")
+        console.log("  2. npx @srcroot/ui add --all")
         console.log()
     }
 }
