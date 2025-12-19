@@ -83,8 +83,8 @@ PopoverTrigger.displayName = "PopoverTrigger"
 
 const PopoverContent = React.forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => {
+    React.HTMLAttributes<HTMLDivElement> & { align?: "start" | "center" | "end" }
+>(({ className, children, align = "center", ...props }, ref) => {
     const context = React.useContext(PopoverContext)
     if (!context) throw new Error("PopoverContent must be used within Popover")
 
@@ -121,6 +121,7 @@ const PopoverContent = React.forwardRef<
             ref={ref}
             className={cn(
                 "absolute z-50 mt-2 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+                align === "end" ? "right-0" : align === "start" ? "left-0" : "left-1/2 -translate-x-1/2",
                 className
             )}
             onClick={(e) => e.stopPropagation()}

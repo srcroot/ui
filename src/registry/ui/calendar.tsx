@@ -72,7 +72,8 @@ function getDaysInMonth(year: number, month: number): Date[] {
     return days
 }
 
-function isSameDay(d1: Date, d2: Date): boolean {
+function isSameDay(d1: Date | undefined | null, d2: Date | undefined | null): boolean {
+    if (!d1 || !d2) return false
     return d1.getDate() === d2.getDate() &&
         d1.getMonth() === d2.getMonth() &&
         d1.getFullYear() === d2.getFullYear()
@@ -509,4 +510,3 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
 Calendar.displayName = "Calendar"
 
 export { Calendar }
-

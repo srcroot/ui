@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { addDays, startOfMonth, endOfMonth } from "date-fns"
 import { Calendar } from "./calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "./popover"
 import { Button } from "./button"
@@ -125,6 +126,31 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             : mode === "multiple" ? "Pick dates"
                 : "Pick a date range"
 
+        // Presets for Range Mode
+        const presets = [
+            {
+                label: "Last 7 Days",
+                getValue: () => {
+                    const today = new Date()
+                    return [addDays(today, -7), today]
+                },
+            },
+            {
+                label: "Last 30 Days",
+                getValue: () => {
+                    const today = new Date()
+                    return [addDays(today, -30), today]
+                },
+            },
+            {
+                label: "This Month",
+                getValue: () => {
+                    const today = new Date()
+                    return [startOfMonth(today), endOfMonth(today)]
+                },
+            },
+        ]
+
         // Handle selection
         const handleSelect = (value: any) => {
             if (mode === "single") {
@@ -135,10 +161,18 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             } else {
                 const dates = value || []
                     ; (onSelect as ((dates: Date[]) => void))?.(dates)
-                // Close when range is complete (2 dates)
-                if (dates.length === 2) {
-                    setOpen(false)
-                }
+                // Do not close automatically for range to allow adjustment
+            }
+        }
+
+        const handlePresetSelect = (preset: { getValue: () => Date[] }) => {
+            if (mode === "range") {
+                const dates = preset.getValue()
+                    ; (onSelect as ((dates: Date[]) => void))?.(dates)
+                // Update internal state if uncontrolled (not covered here fully but ensures trigger updates if parent consumes correctly)
+                // For this component to be fully controlled, parent must pass `selected`.
+                // If we want it to close on preset select:
+                setOpen(false)
             }
         }
 
@@ -150,9 +184,8 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
                         variant="outline"
                         disabled={disabled}
                         className={cn(
-                            "w-[280px] justify-start text-left font-normal",
+                            "w-[260px] justify-start text-left font-normal",
                             !displayText && "text-muted-foreground",
-                            numberOfMonths === 2 && "w-[320px]",
                             className
                         )}
                     >
@@ -160,15 +193,31 @@ const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
                         {displayText || <span>{placeholder || defaultPlaceholder}</span>}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                    <Calendar
-                        mode={mode}
-                        numberOfMonths={numberOfMonths}
-                        size={size}
-                        selected={selected}
-                        onSelect={handleSelect}
-                        className="rounded-md border-0 shadow-none"
-                    />
+                <PopoverContent className="w-auto p-0" align="end">
+                    <div className="flex">
+                        {mode === "range" && (
+                            <div className="border-r p-2 space-y-1 w-[140px]">
+                                {presets.map((preset) => (
+                                    <Button
+                                        key={preset.label}
+                                        variant="ghost"
+                                        className="w-full justify-start font-normal"
+                                        onClick={() => handlePresetSelect(preset)}
+                                    >
+                                        {preset.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
+                        <Calendar
+                            mode={mode}
+                            numberOfMonths={numberOfMonths}
+                            size={size}
+                            selected={selected}
+                            onSelect={handleSelect}
+                            className="rounded-md border-0 shadow-none"
+                        />
+                    </div>
                 </PopoverContent>
             </Popover>
         )
