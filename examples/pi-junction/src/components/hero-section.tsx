@@ -7,6 +7,7 @@ const HERO_SLIDES = [
     {
         id: 1,
         gradient: "from-purple-900 via-gray-900 to-black",
+        image: "/assets/hero-bg-cyber.png",
         title: "The Future of Tech is Here",
         description: "Discover the latest in quantum computing, cybernetics, and advanced interface devices.",
         buttons: [
@@ -29,6 +30,7 @@ const HERO_SLIDES = [
     {
         id: 2,
         gradient: "from-blue-900 via-gray-900 to-black",
+        image: "/assets/hero-bg-neural.png",
         title: "Neural Link Interfaces",
         description: "Seamlessly connect with the digital world. Experience zero-latency control.",
         buttons: [
@@ -44,6 +46,7 @@ const HERO_SLIDES = [
     {
         id: 3,
         gradient: "from-cyan-900 via-gray-900 to-black",
+        image: "/assets/hero-bg-holo.png",
         title: "Holographic Displays",
         description: "Bring your designs to life in true 3D. The ultimate tool for creators.",
         buttons: [
@@ -66,7 +69,22 @@ export function HeroSection() {
                     {HERO_SLIDES.map((slide, index) => (
                         <CarouselItem key={slide.id}>
                             <div className="relative w-full h-full flex items-center justify-center">
-                                <div className={`absolute h-full inset-0 z-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] ${slide.gradient}`}></div>
+                                {/* Background Image or Gradient */}
+                                {slide.image ? (
+                                    <>
+                                        <div className="absolute h-full inset-0 z-0">
+                                            <img
+                                                src={slide.image}
+                                                alt="Hero Background"
+                                                className="w-full h-full object-cover opacity-60"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className={`absolute h-full inset-0 z-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] ${slide.gradient}`}></div>
+                                )}
+
                                 <div className="absolute h-full inset-0 z-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
                                 <div className="container mx-auto relative z-10 px-4 md:px-6 text-center">
                                     <div className="space-y-4">
