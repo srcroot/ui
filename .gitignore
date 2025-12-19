@@ -36,5 +36,3 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
-
-examples/kanban-dashboard
