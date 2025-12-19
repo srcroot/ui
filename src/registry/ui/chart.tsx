@@ -1,7 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { ResponsiveContainer } from "recharts"
+import {
+    Legend as ChartLegendPrimitive,
+    ResponsiveContainer,
+    Tooltip as ChartTooltipPrimitive,
+} from "recharts"
 
 import { cn } from "@/lib/utils"
 
@@ -102,13 +106,19 @@ const ChartTooltip = ChartTooltipPrimitive
 
 const ChartTooltipContent = React.forwardRef<
     HTMLDivElement,
-    React.ComponentProps<typeof ChartTooltipPrimitive> &
+    Omit<React.ComponentProps<typeof ChartTooltipPrimitive>, "payload"> &
     React.ComponentProps<"div"> & {
         hideLabel?: boolean
         hideIndicator?: boolean
         indicator?: "line" | "dot" | "dashed"
         nameKey?: string
         labelKey?: string
+        payload?: any[]
+        label?: any
+        labelFormatter?: any
+        labelClassName?: string
+        formatter?: any
+        color?: string
     }
 >(
     (
@@ -181,7 +191,7 @@ const ChartTooltipContent = React.forwardRef<
             >
                 {!nestLabel ? tooltipLabel : null}
                 <div className="grid gap-1.5">
-                    {payload.map((item, index) => {
+                    {payload.map((item: any, index: number) => {
                         const key = `${nameKey || item.name || item.dataKey || "value"}`
                         const itemConfig = getPayloadConfigFromPayload(config, item, key)
                         const indicatorColor = color || item.payload.fill || item.color
@@ -257,7 +267,9 @@ const ChartLegend = ChartLegendPrimitive
 const ChartLegendContent = React.forwardRef<
     HTMLDivElement,
     React.ComponentProps<"div"> &
-    Pick<React.ComponentProps<typeof ChartLegendPrimitive>, "payload" | "verticalAlign"> & {
+    {
+        payload?: any[]
+        verticalAlign?: "top" | "middle" | "bottom"
         hideIcon?: boolean
         nameKey?: string
     }
@@ -281,7 +293,7 @@ const ChartLegendContent = React.forwardRef<
                     className
                 )}
             >
-                {payload.map((item) => {
+                {(payload as any[]).map((item) => {
                     const key = `${nameKey || item.dataKey || "value"}`
                     const itemConfig = getPayloadConfigFromPayload(config, item, key)
 
@@ -350,16 +362,6 @@ function getPayloadConfigFromPayload(
         ? config[configLabelKey]
         : config[key as keyof typeof config]
 }
-
-// Recharts Primitive Imports - We import specific components to avoid large bundle reference but for now let's just use * and assume tree shaking or specific imports in consuming app.
-// However, the above code uses RechartsPrimitive.Tooltip and Legend.
-// Ideally we should import them from recharts.
-
-import {
-    Legend as ChartLegendPrimitive,
-    Tooltip as ChartTooltipPrimitive,
-    ResponsiveContainer,
-} from "recharts"
 
 export {
     ChartContainer,

@@ -14,6 +14,7 @@ interface DropdownMenuProps {
     open?: boolean
     onOpenChange?: (open: boolean) => void
     defaultOpen?: boolean
+    className?: string
 }
 
 /**
@@ -32,7 +33,7 @@ interface DropdownMenuProps {
  *   </DropdownMenuContent>
  * </DropdownMenu>
  */
-function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: DropdownMenuProps) {
+function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpen = false, className }: DropdownMenuProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
     const triggerRef = React.useRef<HTMLButtonElement>(null)
 
@@ -41,12 +42,13 @@ function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpe
 
     return (
         <DropdownMenuContext.Provider value={{ open, onOpenChange: setOpen, triggerRef }}>
-            <div className="relative inline-block text-left">
+            <div className={cn("relative inline-block text-left", className)}>
                 {children}
             </div>
         </DropdownMenuContext.Provider>
     )
 }
+
 
 interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     asChild?: boolean
@@ -107,6 +109,11 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
         const context = React.useContext(DropdownMenuContext)
         if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu")
         const contentRef = React.useRef<HTMLDivElement>(null)
+        const [currentSide, setCurrentSide] = React.useState(side)
+
+        React.useEffect(() => {
+            setCurrentSide(side)
+        }, [side])
 
         React.useEffect(() => {
             const handleClickOutside = (e: MouseEvent) => {
@@ -129,17 +136,53 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                 }
             }
 
+            const checkPosition = () => {
+                if (context.open && contentRef.current && context.triggerRef.current) {
+                    const triggerRect = context.triggerRef.current.getBoundingClientRect()
+                    const contentRect = contentRef.current.getBoundingClientRect()
+                    const viewportHeight = window.innerHeight
+
+                    const spaceBelow = viewportHeight - triggerRect.bottom
+                    const spaceAbove = triggerRect.top
+                    const neededHeight = contentRect.height + sideOffset
+
+                    if (side === 'bottom') {
+                        if (spaceBelow < neededHeight && spaceAbove > neededHeight) {
+                            setCurrentSide('top')
+                        } else {
+                            setCurrentSide('bottom')
+                        }
+                    } else if (side === 'top') {
+                        if (spaceAbove < neededHeight && spaceBelow > neededHeight) {
+                            setCurrentSide('bottom')
+                        } else {
+                            setCurrentSide('top')
+                        }
+                    }
+                }
+            }
+
+            if (context.open) {
+                // Check position immediately after render cycle (via timeout to allow ref to populate and layout to occur)
+                // Using requestAnimationFrame for better timing in layout cycle
+                requestAnimationFrame(checkPosition)
+            }
+
             const timer = setTimeout(() => {
                 document.addEventListener("click", handleClickOutside)
             }, 0)
             document.addEventListener("keydown", handleEscape)
+            window.addEventListener("resize", checkPosition)
+            window.addEventListener("scroll", checkPosition, true) // Capture scroll to update pos
 
             return () => {
                 clearTimeout(timer)
                 document.removeEventListener("click", handleClickOutside)
                 document.removeEventListener("keydown", handleEscape)
+                window.removeEventListener("resize", checkPosition)
+                window.removeEventListener("scroll", checkPosition, true)
             }
-        }, [context.open, context])
+        }, [context.open, context, side, sideOffset])
 
         if (!context.open) return null
 
@@ -148,12 +191,6 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
             start: 'left-0',
             center: 'left-1/2 -translate-x-1/2',
             end: 'right-0',
-        }
-
-        // Calculate side classes
-        const sideClasses = {
-            bottom: `top-full mt-${sideOffset}`,
-            top: `bottom-full mb-${sideOffset}`,
         }
 
         return (
@@ -169,12 +206,12 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                     "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
                     "animate-in fade-in-0 zoom-in-95",
                     alignmentClasses[align],
-                    side === 'bottom' ? 'top-full' : 'bottom-full',
+                    currentSide === 'bottom' ? 'top-full' : 'bottom-full',
                     className
                 )}
                 style={{
-                    marginTop: side === 'bottom' ? sideOffset : undefined,
-                    marginBottom: side === 'top' ? sideOffset : undefined,
+                    marginTop: currentSide === 'bottom' ? sideOffset : undefined,
+                    marginBottom: currentSide === 'top' ? sideOffset : undefined,
                 }}
                 {...props}
             />
@@ -183,16 +220,54 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
 )
 DropdownMenuContent.displayName = "DropdownMenuContent"
 
+const DropdownMenuGroup = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("", className)} {...props} />
+))
+DropdownMenuGroup.displayName = "DropdownMenuGroup"
+
+const DropdownMenuPortal = ({ children }: { children: React.ReactNode }) => {
+    return <>{children}</>
+}
+DropdownMenuPortal.displayName = "DropdownMenuPortal"
+
 const DropdownMenuItem = React.forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement> & { inset?: boolean; disabled?: boolean }
->(({ className, inset, disabled, onClick, ...props }, ref) => {
+    React.HTMLAttributes<HTMLDivElement> & { inset?: boolean; disabled?: boolean; asChild?: boolean; closeOnSelect?: boolean }
+>(({ className, inset, disabled, onClick, asChild = false, closeOnSelect = true, ...props }, ref) => {
     const context = React.useContext(DropdownMenuContext)
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (disabled) return
         onClick?.(e)
-        context?.onOpenChange(false)
+        if (closeOnSelect) {
+            context?.onOpenChange(false)
+        }
+    }
+
+    if (asChild) {
+        const child = React.Children.only(props.children) as React.ReactElement<any>
+        return React.cloneElement(child, {
+            ref,
+            className: cn(
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+                inset && "pl-8",
+                disabled && "pointer-events-none opacity-50",
+                className,
+                child.props.className
+            ),
+            onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                handleClick(e)
+                child.props.onClick?.(e)
+            },
+            "data-disabled": disabled || undefined,
+            "data-inset": inset || undefined,
+            tabIndex: disabled ? -1 : 0,
+            ...props,
+            children: child.props.children
+        })
     }
 
     return (
@@ -403,4 +478,6 @@ export {
     DropdownMenuSub,
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
+    DropdownMenuGroup,
+    DropdownMenuPortal,
 }

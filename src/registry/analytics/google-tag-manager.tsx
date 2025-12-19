@@ -48,7 +48,7 @@ const GoogleTagManager: FC<GoogleTagManagerProps> = ({ containers }) => {
                 {containers.map(({ gtmId, tagServerUrl = defaultServer }) => (
                     <iframe
                         key={gtmId}
-                        src={`${tagServer}/ns.html?id=${gtmId}`}
+                        src={`${tagServerUrl}/ns.html?id=${gtmId}`}
                         height="0"
                         width="0"
                         style={{ display: 'none', visibility: 'hidden' }}
