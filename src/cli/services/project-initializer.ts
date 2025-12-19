@@ -250,15 +250,10 @@ export function cn(...inputs: ClassValue[]) {
     }
 
     private printSuccess() {
-        const cfg = this.config as ProjectConfig
-
         logger.success("\n✅ Project initialized successfully!\n")
-        console.log(`Theme: ${cfg.selectedTheme}`)
-        console.log(`Tailwind: ${cfg.isTailwind4 ? "v4" : "v3"}`)
 
-        console.log("\n✨ Next steps:")
-        console.log("  1. npx @srcroot/ui add button")
-        console.log("  2. npx @srcroot/ui add --all")
+        console.log("✨ Next steps:")
+        console.log("  1. npx @srcroot/ui add --all")
         console.log()
     }
 }
