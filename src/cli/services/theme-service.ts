@@ -17,6 +17,11 @@ const THEME_METADATA: Record<string, { name: string; description: string }> = {
   stone: { name: "Stone", description: "Warm gray with brown undertones" },
   zinc: { name: "Zinc", description: "Cool gray with subtle blue undertones" },
   gray: { name: "Gray", description: "True neutral gray" },
+  violet: { name: "Violet", description: "Vibrant purple and magenta" },
+  rose: { name: "Rose", description: "Soft and elegant pinkish-red" },
+  blue: { name: "Blue", description: "Trustworthy corporate blue" },
+  green: { name: "Green", description: "Nature and success green" },
+  orange: { name: "Orange", description: "Energetic and creative orange" },
 }
 
 export class ThemeService {

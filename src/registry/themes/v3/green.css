@@ -1,0 +1,158 @@
+/**
+ * @srcroot/ui - Green Theme (Tailwind 3)
+ * Nature and success green
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 142.1 76.2% 36.3%;
+
+        --card: 0 0% 100%;
+        --card-foreground: 142.1 76.2% 36.3%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 142.1 76.2% 36.3%;
+
+        --primary: 142.1 76.2% 36.3%;
+        --primary-foreground: 355.7 100% 97.3%;
+
+        --secondary: 142.1 30% 96.1%;
+        --secondary-foreground: 142.1 76.2% 36.3%;
+
+        --muted: 142.1 30% 96.1%;
+        --muted-foreground: 142.1 10% 45%;
+
+        --accent: 142.1 30% 96.1%;
+        --accent-foreground: 142.1 76.2% 36.3%;
+
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+
+        --success: 142.1 76.2% 36.3%;
+        --success-foreground: 0 0% 98%;
+
+        --warning: 45.4 93.4% 47.5%;
+        --warning-foreground: 142.1 76.2% 36.3%;
+
+        --info: 201.3 96.3% 32.2%;
+        --info-foreground: 0 0% 98%;
+
+        --border: 142.1 20% 90%;
+        --input: 142.1 20% 90%;
+        --ring: 142.1 76.2% 36.3%;
+
+        --radius: 0.5rem;
+
+        --sidebar-width: 16rem;
+        --sidebar-width-mobile: 18rem;
+        --sidebar-width-collapsed: 3rem;
+        --sidebar-width-icon: 3rem;
+        --header-height: 3.5rem;
+
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 142.1 76.2% 36.3%;
+        --sidebar-primary: 142.1 76.2% 36.3%;
+        --sidebar-primary-foreground: 355.7 100% 97.3%;
+        --sidebar-accent: 142.1 30% 96.1%;
+        --sidebar-accent-foreground: 142.1 76.2% 36.3%;
+        --sidebar-border: 142.1 20% 90%;
+        --sidebar-ring: 142.1 76.2% 36.3%;
+    }
+
+    .dark {
+        --background: 142.1 40% 6%;
+        --foreground: 355.7 100% 97.3%;
+
+        --card: 142.1 40% 8%;
+        --card-foreground: 355.7 100% 97.3%;
+
+        --popover: 142.1 40% 8%;
+        --popover-foreground: 355.7 100% 97.3%;
+
+        --primary: 142.1 76.2% 36.3%;
+        --primary-foreground: 355.7 100% 97.3%;
+
+        --secondary: 142.1 30% 15%;
+        --secondary-foreground: 355.7 100% 97.3%;
+
+        --muted: 142.1 30% 15%;
+        --muted-foreground: 142.1 20% 65%;
+
+        --accent: 142.1 30% 15%;
+        --accent-foreground: 355.7 100% 97.3%;
+
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+
+        --success: 142.1 70.6% 45.3%;
+        --success-foreground: 142.1 76.2% 36.3%;
+
+        --warning: 48 96.5% 53.1%;
+        --warning-foreground: 142.1 76.2% 36.3%;
+
+        --info: 199.4 95.5% 53.8%;
+        --info-foreground: 142.1 76.2% 36.3%;
+
+        --border: 142.1 30% 18%;
+        --input: 142.1 30% 18%;
+        --ring: 142.1 76.2% 36.3%;
+
+        --sidebar-background: 142.1 40% 10%;
+        --sidebar-foreground: 355.7 100% 97.3%;
+        --sidebar-primary: 142.1 76.2% 36.3%;
+        --sidebar-primary-foreground: 355.7 100% 97.3%;
+        --sidebar-accent: 142.1 30% 15%;
+        --sidebar-accent-foreground: 355.7 100% 97.3%;
+        --sidebar-border: 142.1 30% 18%;
+        --sidebar-ring: 142.1 76.2% 36.3%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+@layer utilities {
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    .animate-accordion-down {
+        animation: accordion-down 0.2s ease-out;
+    }
+
+    .animate-accordion-up {
+        animation: accordion-up 0.2s ease-out;
+    }
+
+    .bg-gradient-brand {
+        background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    }
+}
