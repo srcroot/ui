@@ -3,8 +3,7 @@ import { cn } from "@/lib/utils"
 
 interface SelectContextValue {
     value: string
-    label: string
-    onValueChange: (value: string, label: string) => void
+    onValueChange: (value: string) => void
     open: boolean
     setOpen: (open: boolean) => void
 }
@@ -34,22 +33,13 @@ interface SelectProps {
  */
 function Select({ children, value: controlledValue, onValueChange, defaultValue = "" }: SelectProps) {
     const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue)
-    const [label, setLabel] = React.useState("")
     const [open, setOpen] = React.useState(false)
 
     const value = controlledValue !== undefined ? controlledValue : uncontrolledValue
-
-    const handleValueChange = React.useCallback((newValue: string, newLabel: string) => {
-        if (onValueChange) {
-            onValueChange(newValue)
-        } else {
-            setUncontrolledValue(newValue)
-        }
-        setLabel(newLabel)
-    }, [onValueChange])
+    const setValue = onValueChange || setUncontrolledValue
 
     return (
-        <SelectContext.Provider value={{ value, label, onValueChange: handleValueChange, open, setOpen }}>
+        <SelectContext.Provider value={{ value, onValueChange: setValue, open, setOpen }}>
             <div className="relative">
                 {children}
             </div>
@@ -103,11 +93,10 @@ function SelectValue({ placeholder }: SelectValueProps) {
 
     return (
         <span className={cn(!context.value && "text-muted-foreground")}>
-            {context.label || context.value || placeholder}
+            {context.value || placeholder}
         </span>
     )
 }
-
 
 const SelectContent = React.forwardRef<
     HTMLDivElement,
@@ -116,13 +105,10 @@ const SelectContent = React.forwardRef<
     const context = React.useContext(SelectContext)
     if (!context) throw new Error("SelectContent must be used within Select")
 
-    const contentRef = React.useRef<HTMLDivElement>(null)
-
     React.useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (context.open && contentRef.current && !contentRef.current.contains(e.target as Node)) {
-                // Small delay to allow onClick handlers to fire first
-                setTimeout(() => context.setOpen(false), 0)
+            if (context.open) {
+                context.setOpen(false)
             }
         }
 
@@ -132,12 +118,11 @@ const SelectContent = React.forwardRef<
             }
         }
 
-        // Use 'click' instead of 'mousedown' to allow item selection
-        document.addEventListener("click", handleClickOutside)
+        document.addEventListener("mousedown", handleClickOutside)
         document.addEventListener("keydown", handleEscape)
 
         return () => {
-            document.removeEventListener("click", handleClickOutside)
+            document.removeEventListener("mousedown", handleClickOutside)
             document.removeEventListener("keydown", handleEscape)
         }
     }, [context.open, context])
@@ -146,13 +131,13 @@ const SelectContent = React.forwardRef<
 
     return (
         <div
-            ref={contentRef}
+            ref={ref}
             role="listbox"
             className={cn(
                 "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
                 className
             )}
-            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
             {...props}
         >
             {children}
@@ -172,13 +157,6 @@ const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
 
         const isSelected = context.value === value
 
-        // Extract label from children (convert ReactNode to string)
-        const getLabel = (): string => {
-            if (typeof children === "string") return children
-            if (typeof children === "number") return String(children)
-            return value // fallback to value if can't extract
-        }
-
         return (
             <div
                 ref={ref}
@@ -190,7 +168,7 @@ const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
                     className
                 )}
                 onClick={() => {
-                    context.onValueChange(value, getLabel())
+                    context.onValueChange(value)
                     context.setOpen(false)
                 }}
                 {...props}

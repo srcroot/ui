@@ -62,12 +62,14 @@ export type ComponentName =
     | "microsoft-clarity"
     | "tiktok-pixel"
     | "chatbot"
+    | "chart"
 
 interface ComponentConfig {
     file: string
     description: string
     category: string
     dependencies?: ComponentName[]
+    registryDependencies?: string[]
 }
 
 export const REGISTRY: Record<ComponentName, ComponentConfig> = {
@@ -338,13 +340,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/combobox.tsx",
         description: "Searchable select with autocomplete",
         category: "Forms",
-        dependencies: ["popover"],
+        dependencies: ["popover", "command", "button", "badge"],
     },
     command: {
         file: "ui/command.tsx",
         description: "Command palette / search menu",
         category: "Navigation",
-        dependencies: [],
+        dependencies: ["dialog"],
     },
     "context-menu": {
         file: "ui/context-menu.tsx",
@@ -368,7 +370,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/file-upload.tsx",
         description: "Drag-and-drop file upload",
         category: "Forms",
-        dependencies: [],
+        dependencies: ["button"],
     },
     "hover-card": {
         file: "ui/hover-card.tsx",
@@ -453,6 +455,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "AI chat interface",
         category: "Data Display",
         dependencies: ["button", "input", "scroll-area", "avatar"],
+    },
+    chart: {
+        file: "ui/chart.tsx",
+        description: "Charts using Recharts",
+        category: "Data Display",
+        dependencies: [],
+        registryDependencies: ["recharts"],
     },
 }
 

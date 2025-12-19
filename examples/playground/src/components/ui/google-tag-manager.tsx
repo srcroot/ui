@@ -32,7 +32,7 @@ const GoogleTagManager: FC<GoogleTagManagerProps> = ({ containers }) => {
                 __html: `
           ${ids
                         .map(
-                            id => `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="${server}/gtm.js?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${id}');`
+                            id => `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src="${server}?"+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${id}');`
                         )
                         .join('')}
         `,
@@ -48,7 +48,7 @@ const GoogleTagManager: FC<GoogleTagManagerProps> = ({ containers }) => {
                 {containers.map(({ gtmId, tagServerUrl = defaultServer }) => (
                     <iframe
                         key={gtmId}
-                        src={`${tagServer}/ns.html?id=${gtmId}`}
+                        src={`${tagServerUrl}/ns.html?id=${gtmId}`}
                         height="0"
                         width="0"
                         style={{ display: 'none', visibility: 'hidden' }}
