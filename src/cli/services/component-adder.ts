@@ -207,7 +207,7 @@ export class ComponentAdder {
                 // __dirname in compiled code usually points to dist/cli/services
                 // registry files are in src/registry (source) or dist/registry (if copied)
                 // For this dev environment, we point to source
-                const registryPath = path.resolve(__dirname, "..", "..", "registry", comp.file)
+                const registryPath = path.resolve(__dirname, "..", "src", "registry", comp.file)
 
                 if (!fs.existsSync(registryPath)) {
                     spinner.warn(`Registry file not found for ${name}: ${registryPath}`)
