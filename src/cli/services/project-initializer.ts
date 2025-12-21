@@ -224,7 +224,7 @@ export function cn(...inputs: ClassValue[]) {
 
     private async installDependencies() {
         const cfg = this.config as ProjectConfig
-        const spinner = ora("Installing dependencies...").start()
+        const spinner = ora("Checking dependencies...").start()
 
         const deps = [
             "clsx",
@@ -238,14 +238,28 @@ export function cn(...inputs: ClassValue[]) {
         }
 
         try {
-            await execa(cfg.packageManager, [cfg.installCmd, ...deps], {
+            const packageJsonPath = path.join(cfg.cwd, "package.json")
+            const pkg = await fs.readJson(packageJsonPath)
+            const allDeps = { ...pkg.dependencies, ...pkg.devDependencies }
+
+            const missingDeps = deps.filter(dep => !allDeps[dep])
+
+            if (missingDeps.length === 0) {
+                spinner.succeed("Dependencies already installed")
+                return
+            }
+
+            spinner.text = "Installing dependencies..."
+
+            await execa(cfg.packageManager, [cfg.installCmd, ...missingDeps], {
                 cwd: cfg.cwd,
                 stdio: "pipe"
             })
-            spinner.succeed(`Installed ${deps.length} dependencies`)
+            spinner.succeed(`Installed ${missingDeps.length} dependencies`)
         } catch (error) {
             spinner.fail("Failed to install dependencies")
-            logger.warn(`\nManually run: ${cfg.packageManager} ${cfg.installCmd} ${deps.join(" ")}`)
+            const missingDeps = deps // Fallback to all deps if something failed before filtering, or re-calculate if possible, but safe to just show the intent
+            logger.warn(`\nManually run: ${cfg.packageManager} ${cfg.installCmd} ${missingDeps.join(" ")}`)
         }
     }
 
