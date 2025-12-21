@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { FiMoreHorizontal, FiPlus } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,23 +12,31 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
-import { KanbanCard, Task } from "./kanban-card"
-import { useMemo } from "react"
-
-export type Column = {
-    id: string
-    title: string
-}
+import { KanbanCard } from "./kanban-card"
+import { useMemo, useState } from "react"
+import { Task, Column } from "@/types/kanban"
 
 interface Props {
     column: Column
     tasks: Task[]
     createTask: (columnId: string) => void
+    onTaskClick?: (task: Task) => void
+    onRename?: (columnId: string, newTitle: string) => void
+    onDelete?: (columnId: string) => void
 }
 
-export function KanbanColumn({ column, tasks, createTask }: Props) {
+export function KanbanColumn({ column, tasks, createTask, onTaskClick, onRename, onDelete }: Props) {
     const tasksIds = useMemo(() => tasks.map((task) => task.id), [tasks])
+    const [isRenaming, setIsRenaming] = useState(false)
+    const [title, setTitle] = useState(column.title)
+
+    const handleRename = () => {
+        if (!title.trim()) return
+        onRename?.(column.id, title)
+        setIsRenaming(false)
+    }
 
     const {
         setNodeRef,
@@ -42,6 +51,7 @@ export function KanbanColumn({ column, tasks, createTask }: Props) {
             type: "Column",
             column,
         },
+        disabled: isRenaming // Disable drag while renaming
     })
 
     const style = {
@@ -63,15 +73,32 @@ export function KanbanColumn({ column, tasks, createTask }: Props) {
         <div
             ref={setNodeRef}
             style={style}
-            className="flex h-full w-[350px] flex-col rounded-md bg-muted/40"
+            className="flex h-full w-[280px] flex-col rounded-md bg-muted/40"
         >
             <div
                 {...attributes}
                 {...listeners}
                 className="flex items-center justify-between p-4 cursor-grab active:cursor-grabbing"
             >
-                <div className="flex items-center gap-2">
-                    <span className="font-semibold">{column.title}</span>
+                <div className="flex items-center gap-2 flex-1">
+                    {isRenaming ? (
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            onBlur={handleRename}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleRename()
+                                if (e.key === 'Escape') {
+                                    setTitle(column.title)
+                                    setIsRenaming(false)
+                                }
+                            }}
+                            autoFocus
+                            className="h-7 text-sm font-semibold"
+                        />
+                    ) : (
+                        <span className="font-semibold">{column.title}</span>
+                    )}
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
                         {tasks.length}
                     </span>
@@ -83,21 +110,26 @@ export function KanbanColumn({ column, tasks, createTask }: Props) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Rename</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem onClick={() => setIsRenaming(true)}>Rename</DropdownMenuItem>
+                        <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => onDelete?.(column.id)}
+                        >
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
 
-            <div className="flex flex-1 flex-col gap-2 p-2 overflow-y-auto">
-                <SortableContext items={tasksIds} strategy={verticalListSortingStrategy}>
-                    {tasks.map((task) => (
-                        <KanbanCard key={task.id} task={task} />
-                    ))}
-                </SortableContext>
-            </div>
+            <ScrollArea className="flex-1 p-2 h-full">
+                <div className="flex flex-col gap-2">
+                    <SortableContext items={tasksIds} strategy={verticalListSortingStrategy}>
+                        {tasks.map((task) => (
+                            <KanbanCard key={task.id} task={task} onClick={onTaskClick} />
+                        ))}
+                    </SortableContext>
+                </div>
+            </ScrollArea>
 
             <div className="p-2">
                 <Button

@@ -277,7 +277,7 @@ const DropdownMenuItem = React.forwardRef<
             tabIndex={disabled ? -1 : 0}
             aria-disabled={disabled}
             className={cn(
-                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer",
                 inset && "pl-8",
                 disabled && "pointer-events-none opacity-50",
                 className

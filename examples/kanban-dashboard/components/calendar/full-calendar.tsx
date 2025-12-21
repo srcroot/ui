@@ -3,146 +3,246 @@
 import * as React from "react"
 import {
     addDays,
-    eachDayOfInterval,
-    endOfMonth,
-    endOfWeek,
-    format,
-    isSameDay,
-    isSameMonth,
-    isToday,
-    parse,
-    startOfMonth,
-    startOfWeek,
     addMonths,
-    subMonths
+    addWeeks,
+    format,
+    startOfWeek,
+    startOfMonth,
+    endOfWeek,
+    endOfMonth,
+    subDays,
+    subMonths,
+    subWeeks
 } from "date-fns"
-import { FiChevronLeft, FiChevronRight, FiClock } from "react-icons/fi"
+import { FiChevronLeft, FiChevronRight, FiCalendar, FiPlus, FiGrid, FiList } from "react-icons/fi"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CalendarMonthView } from "./calendar-month-view"
+import { CalendarWeekView } from "./calendar-week-view"
+import { CalendarDayView } from "./calendar-day-view"
+import { EventSheet } from "./event-sheet"
+
+export type CalendarViewMode = 'month' | 'week' | 'day'
 
 export type CalendarEvent = {
     id: string
     title: string
-    date: Date
-    type: "work" | "personal" | "important" | "other"
-    time?: string
+    description?: string
+    start: Date
+    end: Date
+    allDay?: boolean
+    type: "work" | "personal" | "important" | "meeting" | "task" | "other"
+    taskId?: string
 }
 
 interface FullCalendarProps {
     events?: CalendarEvent[]
 }
 
-export function FullCalendar({ events = [] }: FullCalendarProps) {
-    const [currentMonth, setCurrentMonth] = React.useState(new Date())
-    const [selectedDate, setSelectedDate] = React.useState<Date | null>(null)
-
-    const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
-    const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
-    const today = () => setCurrentMonth(new Date())
-
-    const monthStart = startOfMonth(currentMonth)
-    const monthEnd = endOfMonth(monthStart)
-    const startDate = startOfWeek(monthStart)
-    const endDate = endOfWeek(monthEnd)
-
-    const dateFormat = "d"
-    const rows = []
-    let days = []
-    let day = startDate
-    let formattedDate = ""
-
-    const daysInMonth = eachDayOfInterval({
-        start: startDate,
-        end: endDate,
+// Correct the dates for the mock events to be relative to today for better demo
+const generateMockEvents = (): CalendarEvent[] => {
+    const today = new Date()
+    return [
+        {
+            id: "mock-1",
+            title: "Team Sync",
+            description: "Weekly sync with the engineering team",
+            start: new Date(new Date().setHours(10, 0, 0, 0)),
+            end: new Date(new Date().setHours(11, 0, 0, 0)),
+            type: "work"
+        },
+        {
+            id: "mock-2",
+            title: "Product Review",
+            start: new Date(new Date().setHours(14, 0, 0, 0)),
+            end: new Date(new Date().setHours(15, 30, 0, 0)),
+            type: "important"
+        },
+        {
+            id: "mock-3",
+            title: "Gym Session",
+            start: new Date(new Date(today).setDate(today.getDate() + 1)),
+            end: new Date(new Date(today).setDate(today.getDate() + 1)),
+            type: "personal"
+        }
+    ].map(e => {
+        // Fix for demo purposes often creating broken dates
+        if (e.id === "mock-3") {
+            const start = new Date(today)
+            start.setDate(today.getDate() + 1)
+            start.setHours(18, 0, 0)
+            const end = new Date(start)
+            end.setHours(19, 30, 0)
+            e.start = start
+            e.end = end
+        }
+        return e as CalendarEvent // Explicit cast to help TS
     })
+}
 
-    const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+export function FullCalendar({ events: initialEvents = [] }: FullCalendarProps) {
+    const [date, setDate] = React.useState(new Date())
+    const [view, setView] = React.useState<CalendarViewMode>("week") // Default to week for "Real App" feel
+    // Only use mock events if no initial events are provided
+    const [events, setEvents] = React.useState<CalendarEvent[]>(
+        initialEvents.length > 0 ? initialEvents : generateMockEvents()
+    )
+
+    // Sheet State
+    const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+    const [selectedEvent, setSelectedEvent] = React.useState<CalendarEvent | null>(null)
+
+    const navigate = (direction: 'prev' | 'next') => {
+        if (view === 'month') {
+            setDate(curr => direction === 'next' ? addMonths(curr, 1) : subMonths(curr, 1))
+        } else if (view === 'week') {
+            setDate(curr => direction === 'next' ? addWeeks(curr, 1) : subWeeks(curr, 1))
+        } else {
+            setDate(curr => direction === 'next' ? addDays(curr, 1) : subDays(curr, 1))
+        }
+    }
+
+    const today = () => setDate(new Date())
+
+    const handleEventClick = (event: CalendarEvent) => {
+        setSelectedEvent(event)
+        setIsSheetOpen(true)
+    }
+
+    const handleDateClick = (date: Date) => {
+        const start = new Date(date)
+        start.setHours(9, 0, 0)
+        const end = new Date(date)
+        end.setHours(10, 0, 0)
+
+        setSelectedEvent(null)
+        setIsSheetOpen(true)
+    }
+
+    const handleTimeSlotClick = (date: Date) => {
+        const end = new Date(date)
+        end.setMinutes(date.getMinutes() + 60)
+
+        // Open sheet with this pre-filled
+        setSelectedEvent({
+            id: "", // Flag as new
+            title: "",
+            start: date,
+            end: end,
+            type: "work"
+        })
+        setIsSheetOpen(true)
+    }
+
+    const handleSaveEvent = (event: CalendarEvent) => {
+        if (events.find(e => e.id === event.id)) {
+            setEvents(events.map(e => e.id === event.id ? event : e))
+        } else {
+            setEvents([...events, event])
+        }
+        setIsSheetOpen(false)
+    }
+
+    const handleDeleteEvent = (id: string) => {
+        setEvents(events.filter(e => e.id !== id))
+        setIsSheetOpen(false)
+    }
 
     return (
-        <div className="flex flex-col h-full bg-background rounded-lg border shadow-sm">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold">
-                        {format(currentMonth, "MMMM yyyy")}
-                    </h2>
-                    <div className="flex items-center rounded-md border bg-muted/50 p-0.5">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={prevMonth}>
-                            <FiChevronLeft className="h-3 w-3" />
+        <div className="flex flex-col h-full bg-background rounded-lg border shadow-sm overflow-hidden">
+            {/* Toolbar */}
+            <div className="flex flex-col md:flex-row items-center justify-between p-4 border-b gap-4 bg-muted/10">
+                <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+                    <div className="flex items-center rounded-md border border-input bg-background shadow-sm p-0.5">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('prev')}>
+                            <FiChevronLeft className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={nextMonth}>
-                            <FiChevronRight className="h-3 w-3" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate('next')}>
+                            <FiChevronRight className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-bold tracking-tight min-w-[150px] text-center md:text-left">
+                            {view === 'month' && format(date, "MMMM yyyy")}
+                            {view === 'week' && format(date, "MMMM yyyy")}
+                            {view === 'day' && format(date, "MMMM d, yyyy")}
+                        </h2>
+                        <Button variant="outline" size="sm" onClick={today} className="hidden sm:flex">
+                            Today
                         </Button>
                     </div>
                 </div>
-                <Button variant="outline" size="sm" onClick={today}>
-                    Today
-                </Button>
+
+                <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
+
+                    <Tabs value={view} onValueChange={(v) => setView(v as CalendarViewMode)}>
+                        <TabsList className="grid w-[240px] grid-cols-3">
+                            <TabsTrigger value="month">Month</TabsTrigger>
+                            <TabsTrigger value="week">Week</TabsTrigger>
+                            <TabsTrigger value="day">Day</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+
+
+                    <Button onClick={() => {
+                        setSelectedEvent(null)
+                        setIsSheetOpen(true)
+                    }}>
+                        <FiPlus className="mr-2 h-4 w-4" />
+                        <span className="hidden sm:inline">Add Event</span>
+                        <span className="sm:hidden">Add</span>
+                    </Button>
+                </div>
             </div>
 
-            {/* Weekdays Header */}
-            <div className="grid grid-cols-7 border-b bg-muted/40">
-                {weekdays.map((day) => (
-                    <div key={day} className="p-2 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {day}
-                    </div>
-                ))}
+            {/* View Render */}
+            <div className="flex-1 overflow-hidden relative">
+                {view === 'month' && (
+                    <CalendarMonthView
+                        currentDate={date}
+                        events={events}
+                        onEventClick={handleEventClick}
+                        onDateClick={(d) => {
+                            setDate(d)
+                            setView('day')
+                        }}
+                    />
+                )}
+                {view === 'week' && (
+                    <CalendarWeekView
+                        currentDate={date}
+                        events={events}
+                        onEventClick={handleEventClick}
+                        onTimeSlotClick={handleTimeSlotClick}
+                    />
+                )}
+                {view === 'day' && (
+                    <CalendarDayView
+                        currentDate={date}
+                        events={events}
+                        onEventClick={handleEventClick}
+                        onTimeSlotClick={handleTimeSlotClick}
+                        onDateChange={setDate}
+                    />
+                )}
             </div>
 
-            {/* Calendar Grid */}
-            <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6">
-                {daysInMonth.map((day, i) => {
-                    const isCurrentMonth = isSameMonth(day, monthStart)
-                    const isSelected = selectedDate && isSameDay(day, selectedDate)
-                    const isCurrentDay = isToday(day)
-
-                    // Filter events for this day
-                    const dayEvents = events.filter(event => isSameDay(event.date, day))
-
-                    return (
-                        <div
-                            key={day.toISOString()}
-                            className={cn(
-                                "border-b border-r p-2 min-h-[80px] md:min-h-[100px] flex flex-col gap-1 transition-colors hover:bg-muted/30 relative",
-                                !isCurrentMonth && "bg-muted/10 text-muted-foreground",
-                                isCurrentDay && "bg-blue-50/50 dark:bg-blue-950/20",
-                                i % 7 === 6 && "border-r-0", // Remove right border for last column
-                                // Bottom borders handling could be cleaner but grid-rows usually handles it if container has border
-                            )}
-                            onClick={() => setSelectedDate(day)}
-                        >
-                            <div className="flex items-center justify-between">
-                                <span className={cn(
-                                    "text-sm font-medium w-6 h-6 flex items-center justify-center rounded-full",
-                                    isCurrentDay && "bg-primary text-primary-foreground"
-                                )}>
-                                    {format(day, dateFormat)}
-                                </span>
-                            </div>
-
-                            <div className="flex-1 flex flex-col gap-1 overflow-y-auto max-h-[100px]">
-                                {dayEvents.map(event => (
-                                    <div
-                                        key={event.id}
-                                        className={cn(
-                                            "text-[10px] px-1.5 py-1 rounded truncate border flex items-center gap-1 cursor-pointer",
-                                            event.type === 'important' && "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800",
-                                            event.type === 'work' && "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
-                                            event.type === 'personal' && "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800",
-                                            (!event.type || event.type === 'other') && "bg-muted text-foreground border-border"
-                                        )}
-                                        title={event.title}
-                                    >
-                                        {event.time && <span className="opacity-70 text-[9px]">{event.time}</span>}
-                                        <span className="truncate">{event.title}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
+            <EventSheet
+                event={selectedEvent && selectedEvent.id ? selectedEvent : (selectedEvent || null)}
+                isOpen={isSheetOpen}
+                onClose={() => setIsSheetOpen(false)}
+                onSave={handleSaveEvent}
+                onDelete={handleDeleteEvent}
+            />
         </div>
     )
 }

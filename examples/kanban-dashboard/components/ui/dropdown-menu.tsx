@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { createPortal } from "react-dom"
 
 interface DropdownMenuContextValue {
     open: boolean
@@ -104,16 +105,20 @@ interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> 
     sideOffset?: number
 }
 
+
+
 const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
     ({ className, align = 'start', side = 'bottom', sideOffset = 4, ...props }, ref) => {
         const context = React.useContext(DropdownMenuContext)
         if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu")
         const contentRef = React.useRef<HTMLDivElement>(null)
-        const [currentSide, setCurrentSide] = React.useState(side)
+        const [position, setPosition] = React.useState<{ top: number, left: number } | null>(null)
+        const [mounted, setMounted] = React.useState(false)
 
         React.useEffect(() => {
-            setCurrentSide(side)
-        }, [side])
+            setMounted(true)
+            return () => setMounted(false)
+        }, [])
 
         React.useEffect(() => {
             const handleClickOutside = (e: MouseEvent) => {
@@ -146,25 +151,40 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                     const spaceAbove = triggerRect.top
                     const neededHeight = contentRect.height + sideOffset
 
+                    let effectiveSide = side
+
                     if (side === 'bottom') {
                         if (spaceBelow < neededHeight && spaceAbove > neededHeight) {
-                            setCurrentSide('top')
-                        } else {
-                            setCurrentSide('bottom')
+                            effectiveSide = 'top'
                         }
                     } else if (side === 'top') {
                         if (spaceAbove < neededHeight && spaceBelow > neededHeight) {
-                            setCurrentSide('bottom')
-                        } else {
-                            setCurrentSide('top')
+                            effectiveSide = 'bottom'
                         }
                     }
+
+                    let top = 0
+                    let left = 0
+
+                    if (effectiveSide === 'bottom') {
+                        top = triggerRect.bottom + sideOffset
+                    } else {
+                        top = triggerRect.top - contentRect.height - sideOffset
+                    }
+
+                    if (align === 'start') {
+                        left = triggerRect.left
+                    } else if (align === 'end') {
+                        left = triggerRect.right - contentRect.width
+                    } else {
+                        left = triggerRect.left + (triggerRect.width / 2) - (contentRect.width / 2)
+                    }
+
+                    setPosition({ top, left })
                 }
             }
 
             if (context.open) {
-                // Check position immediately after render cycle (via timeout to allow ref to populate and layout to occur)
-                // Using requestAnimationFrame for better timing in layout cycle
                 requestAnimationFrame(checkPosition)
             }
 
@@ -173,7 +193,7 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
             }, 0)
             document.addEventListener("keydown", handleEscape)
             window.addEventListener("resize", checkPosition)
-            window.addEventListener("scroll", checkPosition, true) // Capture scroll to update pos
+            window.addEventListener("scroll", checkPosition, true)
 
             return () => {
                 clearTimeout(timer)
@@ -182,18 +202,21 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                 window.removeEventListener("resize", checkPosition)
                 window.removeEventListener("scroll", checkPosition, true)
             }
-        }, [context.open, context, side, sideOffset])
+        }, [context.open, context, side, sideOffset, align])
 
-        if (!context.open) return null
+        if (!context.open || !mounted) return null
 
-        // Calculate alignment classes
-        const alignmentClasses = {
-            start: 'left-0',
-            center: 'left-1/2 -translate-x-1/2',
-            end: 'right-0',
+        // Don't render until we have a position to prevent jumping
+        // Actually, we need to render to measure content size for position calculation.
+        // We can render invisible first? Or just render and let effect snap it (might flash).
+        // Standard Floating UI uses opacity: 0 until positioned.
+        const style: React.CSSProperties = {
+            position: 'fixed',
+            zIndex: 50,
+            ...(position ? { top: position.top, left: position.left, opacity: 1 } : { opacity: 0, pointerEvents: 'none' })
         }
 
-        return (
+        const content = (
             <div
                 ref={(node) => {
                     (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
@@ -203,19 +226,16 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                 role="menu"
                 aria-orientation="vertical"
                 className={cn(
-                    "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                    "min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
                     "animate-in fade-in-0 zoom-in-95",
-                    alignmentClasses[align],
-                    currentSide === 'bottom' ? 'top-full' : 'bottom-full',
                     className
                 )}
-                style={{
-                    marginTop: currentSide === 'bottom' ? sideOffset : undefined,
-                    marginBottom: currentSide === 'top' ? sideOffset : undefined,
-                }}
+                style={style}
                 {...props}
             />
         )
+
+        return createPortal(content, document.body)
     }
 )
 DropdownMenuContent.displayName = "DropdownMenuContent"
@@ -277,7 +297,7 @@ const DropdownMenuItem = React.forwardRef<
             tabIndex={disabled ? -1 : 0}
             aria-disabled={disabled}
             className={cn(
-                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer",
                 inset && "pl-8",
                 disabled && "pointer-events-none opacity-50",
                 className

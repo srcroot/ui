@@ -36,3 +36,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+# IP-PBX SaaS System.pdf
+examples/ip-pbx-app
+IP-PBX SaaS System.md
+IP-PBX SaaS System Story.md

@@ -1,81 +1,115 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
-import { FiCheckCircle, FiCircle } from "react-icons/fi"
-
-const quarters = [
-    {
-        name: "Q1 2025",
-        status: "current",
-        goals: [
-            { title: "Core Platform Launch", progress: 75, status: "In Progress" },
-            { title: "Mobile App Beta", progress: 40, status: "At Risk" },
-            { title: "Marketing Campaign", progress: 90, status: "On Track" },
-        ]
-    },
-    {
-        name: "Q2 2025",
-        status: "upcoming",
-        goals: [
-            { title: "Enterprise Features", progress: 0, status: "Planned" },
-            { title: "API Documentation", progress: 10, status: "Started" },
-            { title: "Partner Integration", progress: 0, status: "Planned" },
-        ]
-    },
-    {
-        name: "Q3 2025",
-        status: "upcoming",
-        goals: [
-            { title: "Global Expansion", progress: 0, status: "Planned" },
-            { title: "AI Assistant", progress: 0, status: "Research" },
-        ]
-    }
-]
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { FiPlus, FiCalendar } from "react-icons/fi"
 
 export default function RoadmapPage() {
+    const quarters = ["Q1 2024", "Q2 2024", "Q3 2024", "Q4 2024"]
+    const epics = [
+        {
+            id: 1,
+            title: "Authentication Overhaul",
+            status: "In Progress",
+            startQ: 0,
+            duration: 1,
+            color: "bg-blue-500",
+            team: "Backend"
+        },
+        {
+            id: 2,
+            title: "Kanban 2.0 Features",
+            status: "Planning",
+            startQ: 0,
+            duration: 2,
+            color: "bg-purple-500",
+            team: "Frontend"
+        },
+        {
+            id: 3,
+            title: "Mobile App Launch",
+            status: "Not Started",
+            startQ: 2,
+            duration: 1,
+            color: "bg-green-500",
+            team: "Mobile"
+        },
+        {
+            id: 4,
+            title: "Analytics Dashboard",
+            status: "In Progress",
+            startQ: 1,
+            duration: 2,
+            color: "bg-orange-500",
+            team: "Data"
+        }
+    ]
+
     return (
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <h1 className="text-2xl font-bold tracking-tight">Product Roadmap</h1>
-            <div className="space-y-6">
-                {quarters.map((quarter, index) => (
-                    <div key={index} className="relative pl-6 border-l-2 border-border/50 last:border-0">
-                        <div className="absolute -left-[9px] top-0 flex items-center justify-center w-4 h-4 rounded-full bg-background border-2 border-primary">
-                            {quarter.status === 'completed' ? <FiCheckCircle className="w-3 h-3 text-primary" /> : <FiCircle className="w-3 h-3 text-primary/50" />}
+        <div className="flex flex-col h-[calc(100vh-4rem)] p-6 gap-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Roadmap</h1>
+                    <p className="text-muted-foreground mt-1">Strategic timeline and project milestones.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Select defaultValue="2024">
+                        <SelectTrigger className="w-[120px]">
+                            <FiCalendar className="mr-2 h-4 w-4" />
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="2024">2024</SelectItem>
+                            <SelectItem value="2025">2025</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button>
+                        <FiPlus className="mr-2 h-4 w-4" /> New Epic
+                    </Button>
+                </div>
+            </div>
+
+            <div className="flex-1 border rounded-lg overflow-hidden bg-background shadow-sm flex flex-col">
+                {/* Header */}
+                <div className="grid grid-cols-4 border-b bg-muted/40 divide-x">
+                    {quarters.map((q) => (
+                        <div key={q} className="p-4 text-center font-medium text-sm text-muted-foreground">
+                            {q}
                         </div>
-                        <div className="mb-6">
-                            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                                {quarter.name}
-                                {quarter.status === 'current' && <Badge>Current</Badge>}
-                            </h2>
-                            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {quarter.goals.map((goal, gIndex) => (
-                                    <Card key={gIndex}>
-                                        <CardHeader className="p-4 pb-2">
-                                            <div className="flex justify-between items-start">
-                                                <CardTitle className="text-base">{goal.title}</CardTitle>
-                                                <Badge variant={goal.status === 'At Risk' ? 'destructive' : goal.status === 'On Track' ? 'default' : 'secondary'}>
-                                                    {goal.status}
-                                                </Badge>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-4 pt-2">
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between text-xs text-muted-foreground">
-                                                    <span>Progress</span>
-                                                    <span>{goal.progress}%</span>
-                                                </div>
-                                                <Progress value={goal.progress} className="h-2" />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
+                    ))}
+                </div>
+
+                {/* Timeline Body */}
+                <div className="flex-1 p-4 space-y-8 overflow-y-auto bg-grid-small-black/[0.2] dark:bg-grid-small-white/[0.2]">
+
+                    {epics.map((epic, index) => (
+                        <div key={epic.id} className="relative h-12">
+                            <div
+                                className={`absolute h-10 rounded-md shadow-md ${epic.color} opacity-90 hover:opacity-100 transition-opacity cursor-pointer text-white px-4 flex items-center justify-between`}
+                                style={{
+                                    left: `${epic.startQ * 25}%`,
+                                    width: `${epic.duration * 25}%`,
+                                    top: 0
+                                }}
+                            >
+                                <span className="font-semibold truncate mr-2">{epic.title}</span>
+                                <span className="text-[10px] bg-black/20 px-2 py-0.5 rounded-full font-mono uppercase">
+                                    {epic.team}
+                                </span>
                             </div>
                         </div>
+                    ))}
+
+                    <div className="border-t pt-8 mt-8">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground px-4">
+                            <span className="font-medium">Legend:</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 bg-blue-500 rounded-sm"></span> Backend</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 bg-purple-500 rounded-sm"></span> Frontend</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-500 rounded-sm"></span> Mobile</span>
+                            <span className="flex items-center gap-1"><span className="w-3 h-3 bg-orange-500 rounded-sm"></span> Data</span>
+                        </div>
                     </div>
-                ))}
+                </div>
             </div>
         </div>
     )

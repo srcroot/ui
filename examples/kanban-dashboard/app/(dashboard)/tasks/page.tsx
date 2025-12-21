@@ -149,8 +149,7 @@ export default function TasksPage() {
             <h1 className="text-2xl font-bold tracking-tight">All Tasks</h1>
             <div className="flex items-center justify-between py-4">
                 <div className="relative max-w-sm w-full">
-                    <FiSearch className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
+                    <Input type="search"
                         placeholder="Filter tasks..."
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
@@ -205,7 +204,7 @@ export default function TasksPage() {
                                             onCheckedChange={() => toggleSelectRow(task.id)}
                                         />
                                     </TableCell>
-                                    <TableCell className="font-medium">{task.title}</TableCell>
+                                    <TableCell className="font-medium text-nowrap">{task.title}</TableCell>
                                     <TableCell>
                                         <div className="capitalize">{task.status}</div>
                                     </TableCell>

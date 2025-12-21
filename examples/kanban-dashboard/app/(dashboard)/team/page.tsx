@@ -41,7 +41,7 @@ const initialMembers = [
         email: "olivia.martin@email.com",
         role: "Admin",
         status: "Active",
-        avatar: "/avatars/01.png",
+        avatar: "https://placehold.co/400x400/orange/white?text=OM",
         initials: "OM"
     },
     {
@@ -49,7 +49,7 @@ const initialMembers = [
         email: "jackson.lee@email.com",
         role: "Member",
         status: "Active",
-        avatar: "/avatars/02.png",
+        avatar: "https://placehold.co/400x400/orange/white?text=JL",
         initials: "JL"
     },
     {
@@ -57,7 +57,7 @@ const initialMembers = [
         email: "isabella.nguyen@email.com",
         role: "Viewer",
         status: "Away",
-        avatar: "/avatars/03.png",
+        avatar: "https://placehold.co/400x400/orange/white?text=IN",
         initials: "IN"
     },
     {
@@ -65,7 +65,7 @@ const initialMembers = [
         email: "will@email.com",
         role: "Member",
         status: "Active",
-        avatar: "/avatars/04.png",
+        avatar: "https://placehold.co/400x400/orange/white?text=WK",
         initials: "WK"
     },
     {
@@ -73,7 +73,7 @@ const initialMembers = [
         email: "sofia.davis@email.com",
         role: "Viewer",
         status: "Inactive",
-        avatar: "/avatars/05.png",
+        avatar: "https://placehold.co/400x400/orange/white?text=SD",
         initials: "SD"
     },
 ]

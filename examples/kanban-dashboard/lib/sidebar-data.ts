@@ -41,6 +41,10 @@ export const data = {
                     title: "Roadmap",
                     url: "/roadmap",
                 },
+                {
+                    title: "Backlog",
+                    url: "/backlog",
+                },
             ],
         },
         {

@@ -23,7 +23,6 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarHeader,
-    SidebarInput,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -31,6 +30,7 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
     SidebarRail,
+    useSidebar,
 } from "@/components/ui/sidebar"
 import { toast } from "sonner"
 import {
@@ -41,20 +41,19 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-    DropdownMenuSub,
-    DropdownMenuSubTrigger,
-    DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu"
 
 import { data } from "@/lib/sidebar-data"
+import { Input } from "../ui/input"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
+    const { isMobile, state } = useSidebar()
 
     return (
         <Sidebar {...props}>
             <SidebarHeader>
-                <div className="flex items-center gap-2 px-4 py-2 group-data-[collapsible=icon]:!p-2">
+                <div className="flex items-center justify-center gap-2 p-2 group-data-[collapsible=icon]:!p-2">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                         <FiCommand className="size-4" />
                     </div>
@@ -67,7 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenuItem className="px-2 pb-2 group-data-[collapsible=icon]:hidden">
-                        <SidebarInput placeholder="Search..." />
+                        <Input type="search" placeholder="Search..." />
                     </SidebarMenuItem>
                     <SidebarGroupLabel>Platform</SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -120,28 +119,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                     size="lg"
-                                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-0"
                                 >
                                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                                         <img src={data.user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-lg" />
                                     </div>
-                                    <div className="grid flex-1 text-left text-sm leading-tight text-sidebar-foreground">
+                                    <div className="grid flex-1 text-left text-sm leading-tight text-sidebar-foreground group-data-[collapsible=icon]:hidden">
                                         <span className="truncate font-semibold">{data.user.name}</span>
                                         <span className="truncate text-xs text-muted-foreground">
                                             {data.user.email}
                                         </span>
                                     </div>
-                                    <FiChevronsUp className="ml-auto size-4" />
+                                    <FiChevronsUp className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                                side="top"
-                                align="end"
+                                side={isMobile ? "bottom" : "top"}
+                                align={state === "collapsed" ? "start" : "end"}
                                 sideOffset={4}
                             >
                                 <DropdownMenuLabel className="p-0 font-normal">
-                                    <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                    <div className="flex items-center justify-center gap-2 px-1 py-1.5 text-left text-sm">
                                         <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                                             <img src={data.user.avatar} alt="Avatar" className="w-full h-full object-cover rounded-lg" />
                                         </div>
@@ -163,19 +162,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 <DropdownMenuSeparator />
                                 <DropdownMenuGroup>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/settings?tab=account">
+                                        <Link href="/settings?tab=account" className="cursor-pointer">
                                             <FiCheckCircle className="mr-2 h-4 w-4" />
                                             Account
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/settings?tab=general">
+                                        <Link href="/settings?tab=general" className="cursor-pointer">
                                             <FiCreditCard className="mr-2 h-4 w-4" />
                                             Billing
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/settings?tab=notifications">
+                                        <Link href="/settings?tab=notifications" className="cursor-pointer">
                                             <FiBell className="mr-2 h-4 w-4" />
                                             Notifications
                                         </Link>
@@ -185,13 +184,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 <ThemeSwitcher />
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href="/settings">
+                                    <Link href="/settings" className="cursor-pointer">
                                         <FiSettings className="mr-2 h-4 w-4" />
                                         Settings
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
-                                    <Link href="/login">
+                                    <Link href="/login" className="cursor-pointer text-red-500 hover:text-red-600">
                                         <FiLogOut className="mr-2 h-4 w-4" />
                                         Log out
                                     </Link>

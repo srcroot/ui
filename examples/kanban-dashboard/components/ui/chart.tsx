@@ -60,7 +60,7 @@ const ChartContainer = React.forwardRef<
                 {...props}
             >
                 <ChartStyle id={chartId} config={config} />
-                <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <ResponsiveContainer>
                     {children}
                 </ResponsiveContainer>
             </div>

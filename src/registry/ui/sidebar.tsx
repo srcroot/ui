@@ -63,7 +63,7 @@ const SidebarProvider = React.forwardRef<
 
     React.useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth < 1024) // lg breakpoint
+            setIsMobile(window.innerWidth < 768) // md breakpoint
         }
         checkMobile()
         window.addEventListener("resize", checkMobile)
@@ -169,7 +169,7 @@ const Sidebar = React.forwardRef<
             <div
                 ref={ref}
                 className={cn(
-                    "group peer hidden md:block text-sidebar-foreground",
+                    "group peer md:block text-sidebar-foreground",
                     className
                 )}
                 data-state={state}
@@ -192,7 +192,7 @@ const Sidebar = React.forwardRef<
                 {/* Actual Fixed Sidebar */}
                 <div
                     className={cn(
-                        "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[var(--sidebar-width)] transition-[left,right,width] ease-linear md:flex",
+                        "duration-200 fixed inset-y-0 z-10 h-svh w-[var(--sidebar-width)] transition-[left,right,width] ease-linear md:flex",
                         side === "left"
                             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
                             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
@@ -448,14 +448,10 @@ const SidebarMenuButton = React.forwardRef<
         },
         ref
     ) => {
-        const Comp = "button"
-        // manual asChild handling
-        // const Comp = asChild ? Slot : "button"
-        // But we want to avoid Slot if possible per user request?
-        // Actually, if I can use the same cloneElement approach:
+        const { isMobile, state, setOpen } = useSidebar()
 
         const buttonClass = cn(
-            "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+            "cursor-pointer peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
             "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground",
             "data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground",
             "group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:group-data-[collapsible=icon]:hidden",
@@ -463,6 +459,13 @@ const SidebarMenuButton = React.forwardRef<
         )
 
         // If tooltip is needed, we should implement it. For now, ignoring complexity of tooltip.
+
+        const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+            props.onClick?.(e)
+            if (!isMobile && state === "collapsed") {
+                setOpen(true)
+            }
+        }
 
         if (asChild) {
             const child = React.Children.only(props.children) as React.ReactElement<any>
@@ -474,6 +477,10 @@ const SidebarMenuButton = React.forwardRef<
                 "data-sidebar": "menu-button",
                 "data-size": size,
                 ...props,
+                onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+                    handleClick(e)
+                    child.props.onClick?.(e)
+                },
                 children: child.props.children
             })
         }
@@ -485,6 +492,7 @@ const SidebarMenuButton = React.forwardRef<
                 data-size={size}
                 data-active={isActive}
                 className={buttonClass}
+                onClick={handleClick}
                 {...props}
             />
         )

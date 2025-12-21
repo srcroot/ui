@@ -140,10 +140,10 @@ export default function DashboardPage() {
                                 <div className="ml-auto font-medium">+$1,999.00</div>
                             </div>
                             <div className="flex items-center">
-                                {/* <Avatar className="flex h-9 w-9 items-center justify-center space-y-0 border">
-                                    <AvatarImage src="https://placehold.co/400x400/orange/white?text=JL" alt="Avatar" />
+                                <Avatar className="h-9 w-9">
+                                    <AvatarImage src="https://placehold.co/400x400/orange/white?text=IN" alt="Avatar" />
                                     <AvatarFallback>JL</AvatarFallback>
-                                </Avatar> */}
+                                </Avatar>
                                 <div className="ml-4 space-y-1">
                                     <p className="text-sm font-medium leading-none">Jackson Lee</p>
                                     <p className="text-sm text-muted-foreground">jackson.lee@email.com</p>

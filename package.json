@@ -1,7 +1,9 @@
 {
   "name": "@srcroot/ui",
-  "version": "0.0.46",
+  "version": "0.0.48",
   "description": "A UI library with polymorphic, accessible React components",
+  "author": "Shifaul Islam",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "srcroot-ui": "./dist/index.js"
