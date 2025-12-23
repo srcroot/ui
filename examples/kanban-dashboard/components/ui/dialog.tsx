@@ -1,5 +1,7 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface DialogContextValue {
     open: boolean
@@ -71,17 +73,12 @@ const DialogTrigger = React.forwardRef<HTMLButtonElement, DialogTriggerProps>(
             onOpenChange(true)
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button ref={ref} onClick={handleClick} {...props}>
+            <Comp ref={ref} onClick={handleClick} {...props}>
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
@@ -89,10 +86,16 @@ DialogTrigger.displayName = "DialogTrigger"
 
 const DialogPortal = ({ children }: { children: React.ReactNode }) => {
     const { open } = useDialogContext()
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
 
     if (!open) return null
+    if (!mounted) return null
 
-    return <>{children}</>
+    return createPortal(children, document.body)
 }
 
 const DialogOverlay = React.forwardRef<
@@ -171,7 +174,7 @@ const DialogContent = React.forwardRef<
             <DialogOverlay onClick={() => onOpenChange(false)} />
             <div
                 ref={(node) => {
-                    (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+                    (contentRef as any).current = node
                     if (typeof ref === "function") ref(node)
                     else if (ref) ref.current = node
                 }}

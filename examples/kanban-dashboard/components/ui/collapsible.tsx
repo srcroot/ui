@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface CollapsibleContextValue {
     open: boolean
@@ -59,16 +60,10 @@ const CollapsibleTrigger = React.forwardRef<HTMLButtonElement, CollapsibleTrigge
             context.onOpenChange(!context.open)
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                "aria-expanded": context.open,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button
+            <Comp
                 ref={ref}
                 type="button"
                 aria-expanded={context.open}
@@ -77,7 +72,7 @@ const CollapsibleTrigger = React.forwardRef<HTMLButtonElement, CollapsibleTrigge
                 {...props}
             >
                 {children}
-            </button>
+            </Comp>
         )
     }
 )

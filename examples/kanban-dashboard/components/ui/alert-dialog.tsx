@@ -1,5 +1,7 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface AlertDialogContextValue {
     open: boolean
@@ -63,17 +65,12 @@ const AlertDialogTrigger = React.forwardRef<HTMLButtonElement, AlertDialogTrigge
             context.onOpenChange(true)
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button ref={ref} onClick={handleClick} {...props}>
+            <Comp ref={ref} onClick={handleClick} {...props}>
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
@@ -95,9 +92,16 @@ const AlertDialogContent = React.forwardRef<
         }
     }, [context.open])
 
-    if (!context.open) return null
+    const [mounted, setMounted] = React.useState(false)
 
-    return (
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (!context.open) return null
+    if (!mounted) return null
+
+    return createPortal(
         <>
             <div className="fixed inset-0 z-50 bg-black/80" />
             <div
@@ -112,7 +116,8 @@ const AlertDialogContent = React.forwardRef<
             >
                 {children}
             </div>
-        </>
+        </>,
+        document.body
     )
 })
 AlertDialogContent.displayName = "AlertDialogContent"

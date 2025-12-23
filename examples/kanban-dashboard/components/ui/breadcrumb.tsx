@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 /**
  * Breadcrumb navigation component
@@ -59,21 +60,16 @@ interface BreadcrumbLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorEleme
 
 const BreadcrumbLink = React.forwardRef<HTMLAnchorElement, BreadcrumbLinkProps>(
     ({ asChild, className, children, ...props }, ref) => {
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                ref,
-                className: cn("transition-colors hover:text-foreground", className),
-            })
-        }
+        const Comp = asChild ? Slot : "a"
 
         return (
-            <a
+            <Comp
                 ref={ref}
                 className={cn("transition-colors hover:text-foreground", className)}
                 {...props}
             >
                 {children}
-            </a>
+            </Comp>
         )
     }
 )

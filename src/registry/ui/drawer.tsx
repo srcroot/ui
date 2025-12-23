@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 // Drawer Context
 interface DrawerContextValue {
@@ -27,6 +29,25 @@ interface DrawerProps {
     defaultOpen?: boolean
 }
 
+/**
+ * Drawer component for mobile-first bottom sheets
+ * 
+ * @example
+ * <Drawer>
+ *   <DrawerTrigger>Open</DrawerTrigger>
+ *   <DrawerContent>
+ *     <DrawerHeader>
+ *       <DrawerTitle>Title</DrawerTitle>
+ *       <DrawerDescription>Description</DrawerDescription>
+ *     </DrawerHeader>
+ *     <div>Content</div>
+ *     <DrawerFooter>
+ *       <Button>Submit</Button>
+ *       <DrawerClose>Cancel</DrawerClose>
+ *     </DrawerFooter>
+ *   </DrawerContent>
+ * </Drawer>
+ */
 const Drawer = ({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: DrawerProps) => {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
     const open = controlledOpen ?? uncontrolledOpen
@@ -53,17 +74,12 @@ const DrawerTrigger = React.forwardRef<HTMLButtonElement, DrawerTriggerProps>(
             onOpenChange(true)
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button ref={ref} onClick={handleClick} {...props}>
+            <Comp ref={ref} onClick={handleClick} {...props}>
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
@@ -166,9 +182,16 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
             }
         }, [open])
 
-        if (!isVisible) return null
+        const [mounted, setMounted] = React.useState(false)
 
-        return (
+        React.useEffect(() => {
+            setMounted(true)
+        }, [])
+
+        if (!isVisible) return null
+        if (!mounted) return null
+
+        return createPortal(
             <>
                 <DrawerOverlay isAnimating={isAnimating} />
                 <div
@@ -194,7 +217,8 @@ const DrawerContent = React.forwardRef<HTMLDivElement, DrawerContentProps>(
                         <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-muted" />
                     )}
                 </div>
-            </>
+            </>,
+            document.body
         )
     }
 )

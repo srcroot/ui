@@ -1,7 +1,9 @@
 'use client'
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface SheetContextValue {
     open: boolean
@@ -19,6 +21,18 @@ interface SheetProps {
 
 /**
  * Sheet (slide-in panel) component with smooth animations
+ * 
+ * @example
+ * <Sheet>
+ *   <SheetTrigger>Open</SheetTrigger>
+ *   <SheetContent>
+ *     <SheetHeader>
+ *       <SheetTitle>Edit profile</SheetTitle>
+ *       <SheetDescription>Make changes to your profile here.</SheetDescription>
+ *     </SheetHeader>
+ *     <div>Content</div>
+ *   </SheetContent>
+ * </Sheet>
  */
 function Sheet({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: SheetProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
@@ -47,17 +61,12 @@ const SheetTrigger = React.forwardRef<HTMLButtonElement, SheetTriggerProps>(
             context.onOpenChange(true)
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button ref={ref} onClick={handleClick} {...props}>
+            <Comp ref={ref} onClick={handleClick} {...props}>
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
@@ -150,11 +159,18 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
             }
         }, [context.open, context])
 
+        const [mounted, setMounted] = React.useState(false)
+
+        React.useEffect(() => {
+            setMounted(true)
+        }, [])
+
         if (!isVisible) return null
+        if (!mounted) return null
 
         const sideKey = side || "right"
 
-        return (
+        return createPortal(
             <>
                 {/* Overlay with fade animation */}
                 <div
@@ -190,7 +206,8 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
                         <span className="sr-only">Close</span>
                     </button>
                 </div>
-            </>
+            </>,
+            document.body
         )
     }
 )

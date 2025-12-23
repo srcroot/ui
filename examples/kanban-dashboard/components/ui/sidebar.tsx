@@ -6,6 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { Slot } from "@/components/ui/slot"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 
@@ -281,8 +282,8 @@ const SidebarInset = React.forwardRef<
             className={cn(
                 "relative flex min-h-svh flex-1 flex-col bg-background",
                 // Width calculation based on sidebar state
-                "w-full md:w-[calc(100vw-var(--sidebar-width))]",
-                "md:peer-data-[state=collapsed]:w-[calc(100vw-var(--sidebar-width-icon))]",
+                "w-full md:w-[calc(100%-var(--sidebar-width))]",
+                "md:peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon))]",
                 "md:peer-data-[collapsible=offcanvas]:peer-data-[state=collapsed]:w-full",
                 // Transition for smooth resize
                 "transition-[width] duration-200 ease-linear",
@@ -355,25 +356,10 @@ const SidebarGroupLabel = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
 >(({ className, asChild = false, ...props }, ref) => {
-    // Only supporting div rendering for now
-    if (asChild) {
-        const child = React.Children.only(props.children) as React.ReactElement<any>
-        return React.cloneElement(child, {
-            ref,
-            "data-sidebar": "group-label",
-            className: cn(
-                "duration-200 flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium text-sidebar-foreground/70 outline-none ring-sidebar-ring transition-[margin,opa] ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
-                "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
-                className,
-                child.props.className
-            ),
-            ...props,
-            children: child.props.children,
-        })
-    }
+    const Comp = asChild ? Slot : "div"
 
     return (
-        <div
+        <Comp
             ref={ref}
             data-sidebar="group-label"
             className={cn(
@@ -467,26 +453,10 @@ const SidebarMenuButton = React.forwardRef<
             }
         }
 
-        if (asChild) {
-            const child = React.Children.only(props.children) as React.ReactElement<any>
-
-            return React.cloneElement(child, {
-                ref,
-                className: cn(buttonClass, child.props.className),
-                "data-active": isActive,
-                "data-sidebar": "menu-button",
-                "data-size": size,
-                ...props,
-                onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-                    handleClick(e)
-                    child.props.onClick?.(e)
-                },
-                children: child.props.children
-            })
-        }
+        const Comp = asChild ? Slot : "button"
 
         return (
-            <button
+            <Comp
                 ref={ref}
                 data-sidebar="menu-button"
                 data-size={size}
@@ -504,31 +474,10 @@ const SidebarMenuAction = React.forwardRef<
     HTMLButtonElement,
     React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean; showOnHover?: boolean }
 >(({ className, asChild = false, showOnHover = false, ...props }, ref) => {
-    if (asChild) {
-        const child = React.Children.only(props.children) as React.ReactElement<any>
-        return React.cloneElement(child, {
-            ref,
-            "data-sidebar": "menu-action",
-            className: cn(
-                "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
-                // Increases the hit area of the button on mobile.
-                "after:absolute after:-inset-2 after:md:hidden",
-                "peer-data-[size=sm]/menu-button:top-1",
-                "peer-data-[size=default]/menu-button:top-1.5",
-                "peer-data-[size=lg]/menu-button:top-2.5",
-                "group-data-[collapsible=icon]:hidden",
-                showOnHover &&
-                "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
-                className,
-                child.props.className
-            ),
-            ...props,
-            children: child.props.children
-        })
-    }
+    const Comp = asChild ? Slot : "button"
 
     return (
-        <button
+        <Comp
             ref={ref}
             data-sidebar="menu-action"
             className={cn(
@@ -580,28 +529,10 @@ const SidebarMenuSubButton = React.forwardRef<
         isActive?: boolean
     }
 >(({ asChild = false, size = "md", isActive, className, ...props }, ref) => {
-    if (asChild) {
-        const child = React.Children.only(props.children) as React.ReactElement<any>
-        return React.cloneElement(child, {
-            ref,
-            "data-sidebar": "menu-sub-button",
-            "data-size": size,
-            "data-active": isActive,
-            className: cn(
-                "flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 group-data-[collapsible=icon]:hidden",
-                size === "sm" && "text-xs",
-                size === "md" && "text-sm",
-                "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
-                className,
-                child.props.className
-            ),
-            ...props,
-            children: child.props.children
-        })
-    }
+    const Comp = asChild ? Slot : "a"
 
     return (
-        <a
+        <Comp
             ref={ref}
             data-sidebar="menu-sub-button"
             data-size={size}
@@ -618,6 +549,24 @@ const SidebarMenuSubButton = React.forwardRef<
     )
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+
+const SidebarInput = React.forwardRef<
+    HTMLInputElement,
+    React.InputHTMLAttributes<HTMLInputElement>
+>(({ className, ...props }, ref) => {
+    return (
+        <input
+            ref={ref}
+            data-sidebar="input"
+            className={cn(
+                "flex h-8 w-full bg-background rounded-md px-3 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:hidden",
+                className
+            )}
+            {...props}
+        />
+    )
+})
+SidebarInput.displayName = "SidebarInput"
 
 
 const SidebarSeparator = React.forwardRef<
@@ -643,6 +592,7 @@ export {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarHeader,
+    SidebarInput,
     SidebarInset,
     SidebarMenu,
     SidebarMenuAction,

@@ -149,7 +149,8 @@ export default function TasksPage() {
             <h1 className="text-2xl font-bold tracking-tight">All Tasks</h1>
             <div className="flex items-center justify-between py-4">
                 <div className="relative max-w-sm w-full">
-                    <Input type="search"
+                    <Input
+                        type="search"
                         placeholder="Filter tasks..."
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}

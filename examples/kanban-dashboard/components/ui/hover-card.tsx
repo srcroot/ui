@@ -1,7 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 // HoverCard Context
 interface HoverCardContextValue {
@@ -81,14 +83,24 @@ const HoverCardTrigger = React.forwardRef<HTMLDivElement, HoverCardTriggerProps>
     ({ children, asChild, className, ...props }, ref) => {
         const { triggerRef } = useHoverCard()
 
+        // Merge refs manually since we have two refs to attach (triggerRef and ref)
+        const combinedRef = React.useCallback((node: HTMLDivElement | null) => {
+            if (triggerRef) (triggerRef as any).current = node
+
+            if (typeof ref === "function") ref(node)
+            else if (ref) (ref as any).current = node
+        }, [triggerRef, ref])
+
+        const Comp = asChild ? Slot : "div"
+
         return (
-            <div
-                ref={triggerRef}
+            <Comp
+                ref={combinedRef}
                 className={cn("inline-block cursor-pointer", className)}
                 {...props}
             >
                 {children}
-            </div>
+            </Comp>
         )
     }
 )
@@ -101,63 +113,96 @@ interface HoverCardContentProps extends React.HTMLAttributes<HTMLDivElement> {
     sideOffset?: number
 }
 
-const HoverCardContent = React.forwardRef<HTMLDivElement, HoverCardContentProps>(
-    ({ children, className, align = "center", side = "bottom", sideOffset = 8, ...props }, ref) => {
+const HoverCardContent = React.forwardRef<
+    HTMLDivElement,
+    HoverCardContentProps & { portal?: boolean }
+>(
+    ({ children, className, align = "center", side = "bottom", sideOffset = 4, portal = true, ...props }, ref) => {
         const { open, triggerRef } = useHoverCard()
         const [position, setPosition] = React.useState({ top: 0, left: 0 })
         const contentRef = React.useRef<HTMLDivElement>(null)
+        const [mounted, setMounted] = React.useState(false)
+
+        React.useEffect(() => {
+            setMounted(true)
+        }, [])
 
         React.useEffect(() => {
             if (!open || !triggerRef.current || !contentRef.current) return
 
-            const triggerRect = triggerRef.current.getBoundingClientRect()
-            const contentRect = contentRef.current.getBoundingClientRect()
+            const checkPosition = () => {
+                if (!triggerRef.current || !contentRef.current) return
+                const triggerRect = triggerRef.current.getBoundingClientRect()
+                const contentRect = contentRef.current.getBoundingClientRect()
 
-            let top = 0
-            let left = 0
+                let top = 0
+                let left = 0
 
-            // Calculate vertical position
-            if (side === "bottom") {
-                top = triggerRect.bottom + sideOffset
-            } else {
-                top = triggerRect.top - contentRect.height - sideOffset
+                // Calculate vertical position
+                if (side === "bottom") {
+                    top = triggerRect.bottom + sideOffset
+                } else {
+                    top = triggerRect.top - contentRect.height - sideOffset
+                }
+
+                // Calculate horizontal position
+                if (align === "start") {
+                    left = triggerRect.left
+                } else if (align === "end") {
+                    left = triggerRect.right - contentRect.width
+                } else {
+                    left = triggerRect.left + (triggerRect.width - contentRect.width) / 2
+                }
+
+                // Clamp to viewport
+                left = Math.max(8, Math.min(left, window.innerWidth - contentRect.width - 8))
+                top = Math.max(8, Math.min(top, window.innerHeight - contentRect.height - 8))
+
+                setPosition({ top, left })
             }
 
-            // Calculate horizontal position
-            if (align === "start") {
-                left = triggerRect.left
-            } else if (align === "end") {
-                left = triggerRect.right - contentRect.width
-            } else {
-                left = triggerRect.left + (triggerRect.width - contentRect.width) / 2
+            checkPosition()
+            window.addEventListener('resize', checkPosition)
+            window.addEventListener('scroll', checkPosition, true)
+
+            return () => {
+                window.removeEventListener('resize', checkPosition)
+                window.removeEventListener('scroll', checkPosition, true)
             }
-
-            // Clamp to viewport
-            left = Math.max(8, Math.min(left, window.innerWidth - contentRect.width - 8))
-            top = Math.max(8, Math.min(top, window.innerHeight - contentRect.height - 8))
-
-            setPosition({ top, left })
         }, [open, triggerRef, align, side, sideOffset])
 
         if (!open) return null
 
-        return (
+        const content = (
             <div
-                ref={contentRef}
+                ref={(node) => {
+                    (contentRef as any).current = node
+                    if (typeof ref === 'function') ref(node)
+                    else if (ref) (ref as any).current = node
+                }}
                 className={cn(
-                    "fixed z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
+                    "z-50 w-64 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none",
                     "animate-in fade-in-0 zoom-in-95",
+                    !portal && "absolute",
+                    portal && "fixed",
                     className
                 )}
                 style={{
-                    top: position.top,
-                    left: position.left,
+                    top: portal ? position.top : undefined,
+                    left: portal ? position.left : undefined,
+                    ...props.style
                 }}
                 {...props}
             >
                 {children}
             </div>
         )
+
+        if (portal && mounted) {
+            return createPortal(content, document.body)
+        }
+
+        return content
     }
 )
 HoverCardContent.displayName = "HoverCardContent"
