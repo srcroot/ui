@@ -65,6 +65,7 @@ export type ComponentName =
     | "tiktok-pixel"
     | "chatbot"
     | "chart"
+    | "slot"
 
 interface ComponentConfig {
     file: string
@@ -80,7 +81,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/button.tsx",
         description: "Polymorphic button with variants",
         category: "Core",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     badge: {
         file: "ui/badge.tsx",
@@ -121,7 +122,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Text input field",
         category: "Forms",
         dependencies: [],
-        registryDependencies: ["react-icons"],
+        registryDependencies: ["react-icons^5.5.0"],
     },
     textarea: {
         file: "ui/textarea.tsx",
@@ -217,37 +218,37 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/dialog.tsx",
         description: "Modal dialog",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     "alert-dialog": {
         file: "ui/alert-dialog.tsx",
         description: "Confirmation dialog",
         category: "Overlay / Feedback",
-        dependencies: ["dialog"],
+        dependencies: ["dialog", "slot"],
     },
     sheet: {
         file: "ui/sheet.tsx",
         description: "Slide-in panel",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     popover: {
         file: "ui/popover.tsx",
         description: "Floating content",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     tooltip: {
         file: "ui/tooltip.tsx",
         description: "Hover tooltip",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     "dropdown-menu": {
         file: "ui/dropdown-menu.tsx",
         description: "Action dropdown",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     toast: {
         file: "ui/toast.tsx",
@@ -267,7 +268,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/breadcrumb.tsx",
         description: "Breadcrumb navigation",
         category: "Navigation",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     pagination: {
         file: "ui/pagination.tsx",
@@ -317,7 +318,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/collapsible.tsx",
         description: "Expandable section",
         category: "Data Display",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     carousel: {
         file: "ui/carousel.tsx",
@@ -335,7 +336,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/sidebar.tsx",
         description: "Responsive sidebar with mobile drawer",
         category: "Layout",
-        dependencies: ["sheet", "button"],
+        dependencies: ["sheet", "button", "slot"],
     },
 
     // Added Components
@@ -374,12 +375,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Date picker with calendar",
         category: "Forms",
         dependencies: ["calendar", "popover", "button"],
+        registryDependencies: ["date-fns^4.1.0"],
     },
     drawer: {
         file: "ui/drawer.tsx",
         description: "Bottom/top sheet drawer",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     "file-upload": {
         file: "ui/file-upload.tsx",
@@ -391,7 +393,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/hover-card.tsx",
         description: "Hover-triggered popover",
         category: "Overlay / Feedback",
-        dependencies: [],
+        dependencies: ["slot"],
     },
     kbd: {
         file: "ui/kbd.tsx",
@@ -476,7 +478,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Charts using Recharts",
         category: "Data Display",
         dependencies: [],
-        registryDependencies: ["recharts"],
+        registryDependencies: ["recharts^2.15.4"],
+    },
+    slot: {
+        file: "ui/slot.tsx",
+        description: "Slot utility for polymorphic components",
+        category: "Core",
+        dependencies: [],
     },
 }
 

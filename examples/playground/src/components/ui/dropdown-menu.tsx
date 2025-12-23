@@ -1,5 +1,7 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface DropdownMenuContextValue {
     open: boolean
@@ -14,6 +16,7 @@ interface DropdownMenuProps {
     open?: boolean
     onOpenChange?: (open: boolean) => void
     defaultOpen?: boolean
+    className?: string
 }
 
 /**
@@ -32,7 +35,7 @@ interface DropdownMenuProps {
  *   </DropdownMenuContent>
  * </DropdownMenu>
  */
-function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: DropdownMenuProps) {
+function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpen = false, className }: DropdownMenuProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
     const triggerRef = React.useRef<HTMLButtonElement>(null)
 
@@ -41,12 +44,13 @@ function DropdownMenu({ children, open: controlledOpen, onOpenChange, defaultOpe
 
     return (
         <DropdownMenuContext.Provider value={{ open, onOpenChange: setOpen, triggerRef }}>
-            <div className="relative inline-block text-left">
+            <div className={cn("relative inline-block text-left", className)}>
                 {children}
             </div>
         </DropdownMenuContext.Provider>
     )
 }
+
 
 interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     asChild?: boolean
@@ -64,22 +68,21 @@ const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTrig
 
         // Combine refs
         const combinedRef = (node: HTMLButtonElement | null) => {
-            (context.triggerRef as React.MutableRefObject<HTMLButtonElement | null>).current = node
+            (context.triggerRef as any).current = node
             if (typeof ref === 'function') ref(node)
             else if (ref) ref.current = node
         }
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onClick: handleClick,
-                "aria-expanded": context.open,
-                "aria-haspopup": "menu",
-                ref: combinedRef,
-            })
+        if (asChild) {
+            // For asChild, we need to manually make sure the ref is passed correctly.
+            // Slot handles merging the passed ref with the child's ref.
+            // But here we're passing `combinedRef` as the ref to Slot.
         }
 
+        const Comp = asChild ? Slot : "button"
+
         return (
-            <button
+            <Comp
                 ref={combinedRef}
                 aria-expanded={context.open}
                 aria-haspopup="menu"
@@ -87,7 +90,7 @@ const DropdownMenuTrigger = React.forwardRef<HTMLButtonElement, DropdownMenuTrig
                 {...props}
             >
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
@@ -100,13 +103,24 @@ interface DropdownMenuContentProps extends React.HTMLAttributes<HTMLDivElement> 
     side?: 'bottom' | 'top'
     /** Offset from trigger in pixels */
     sideOffset?: number
+    /** Whether to render in a portal (default: true) */
+    portal?: boolean
 }
 
 const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContentProps>(
-    ({ className, align = 'start', side = 'bottom', sideOffset = 4, ...props }, ref) => {
+    ({ className, align = 'start', side = 'bottom', sideOffset = 4, portal = true, ...props }, ref) => {
         const context = React.useContext(DropdownMenuContext)
         if (!context) throw new Error("DropdownMenuContent must be used within DropdownMenu")
         const contentRef = React.useRef<HTMLDivElement>(null)
+        const [position, setPosition] = React.useState({ top: 0, left: 0 })
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [currentSide, setCurrentSide] = React.useState(side)
+
+        // Reset scroll on mount/unmount if needed, but mainly we just need a portal container
+        const [mounted, setMounted] = React.useState(false)
+        React.useEffect(() => {
+            setMounted(true)
+        }, [])
 
         React.useEffect(() => {
             const handleClickOutside = (e: MouseEvent) => {
@@ -129,70 +143,175 @@ const DropdownMenuContent = React.forwardRef<HTMLDivElement, DropdownMenuContent
                 }
             }
 
+            const checkPosition = () => {
+                if (context.open && contentRef.current && context.triggerRef.current) {
+                    const triggerRect = context.triggerRef.current.getBoundingClientRect()
+                    const contentRect = contentRef.current.getBoundingClientRect()
+                    const viewportHeight = window.innerHeight
+                    const viewportWidth = window.innerWidth
+
+                    let top = 0
+                    let left = 0
+                    let usedSide = side
+
+                    // Vertical positioning logic
+                    const spaceBelow = viewportHeight - triggerRect.bottom
+                    const spaceAbove = triggerRect.top
+                    const neededHeight = contentRect.height + sideOffset
+
+                    if (side === 'bottom') {
+                        if (spaceBelow < neededHeight && spaceAbove > neededHeight) {
+                            usedSide = 'top'
+                        }
+                    } else if (side === 'top') {
+                        if (spaceAbove < neededHeight && spaceBelow > neededHeight) {
+                            usedSide = 'bottom'
+                        }
+                    }
+                    setCurrentSide(usedSide)
+
+                    if (usedSide === 'bottom') {
+                        top = triggerRect.bottom + sideOffset
+                    } else {
+                        top = triggerRect.top - contentRect.height - sideOffset
+                    }
+
+                    // Horizontal positioning logic (Alignment)
+                    if (align === 'start') {
+                        left = triggerRect.left
+                    } else if (align === 'end') {
+                        left = triggerRect.right - contentRect.width
+                    } else {
+                        // center
+                        left = triggerRect.left + (triggerRect.width - contentRect.width) / 2
+                    }
+
+                    // Collision detection / clamping for X axis
+                    if (left < 4) left = 4
+                    if (left + contentRect.width > viewportWidth - 4) {
+                        left = viewportWidth - contentRect.width - 4
+                    }
+
+                    setPosition({ top, left })
+                }
+            }
+
+            if (context.open) {
+                // Check position immediately after render cycle
+                requestAnimationFrame(checkPosition)
+            }
+
             const timer = setTimeout(() => {
                 document.addEventListener("click", handleClickOutside)
             }, 0)
             document.addEventListener("keydown", handleEscape)
+            window.addEventListener("resize", checkPosition)
+            window.addEventListener("scroll", checkPosition, true)
 
             return () => {
                 clearTimeout(timer)
                 document.removeEventListener("click", handleClickOutside)
                 document.removeEventListener("keydown", handleEscape)
+                window.removeEventListener("resize", checkPosition)
+                window.removeEventListener("scroll", checkPosition, true)
             }
-        }, [context.open, context])
+        }, [context.open, context, side, sideOffset, align])
 
         if (!context.open) return null
+        if (portal && !mounted) return null
 
-        // Calculate alignment classes
+        // Alignment classes are ignored if we use portal/fixed positioning,
+        // but kept for non-portal usage if someone opts out.
         const alignmentClasses = {
             start: 'left-0',
             center: 'left-1/2 -translate-x-1/2',
             end: 'right-0',
         }
 
-        // Calculate side classes
-        const sideClasses = {
-            bottom: `top-full mt-${sideOffset}`,
-            top: `bottom-full mb-${sideOffset}`,
-        }
-
-        return (
+        const content = (
             <div
                 ref={(node) => {
-                    (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+                    (contentRef as any).current = node
                     if (typeof ref === 'function') ref(node)
                     else if (ref) ref.current = node
                 }}
                 role="menu"
                 aria-orientation="vertical"
                 className={cn(
-                    "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                    "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
                     "animate-in fade-in-0 zoom-in-95",
-                    alignmentClasses[align],
-                    side === 'bottom' ? 'top-full' : 'bottom-full',
+                    !portal && "absolute", // Use absolute if not portal
+                    !portal && alignmentClasses[align],
+                    !portal && (side === 'bottom' ? 'top-full mt-1' : 'bottom-full mb-1'),
+                    portal && "fixed", // Use fixed if portal
                     className
                 )}
                 style={{
-                    marginTop: side === 'bottom' ? sideOffset : undefined,
-                    marginBottom: side === 'top' ? sideOffset : undefined,
+                    top: portal ? position.top : undefined,
+                    left: portal ? position.left : undefined,
+                    ...props.style
                 }}
                 {...props}
             />
         )
+
+        if (portal) {
+            return createPortal(content, document.body)
+        }
+
+        return content
     }
 )
 DropdownMenuContent.displayName = "DropdownMenuContent"
 
+const DropdownMenuGroup = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("", className)} {...props} />
+))
+DropdownMenuGroup.displayName = "DropdownMenuGroup"
+
+const DropdownMenuPortal = ({ children }: { children: React.ReactNode }) => {
+    return <>{children}</>
+}
+DropdownMenuPortal.displayName = "DropdownMenuPortal"
+
 const DropdownMenuItem = React.forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement> & { inset?: boolean; disabled?: boolean }
->(({ className, inset, disabled, onClick, ...props }, ref) => {
+    React.HTMLAttributes<HTMLDivElement> & { inset?: boolean; disabled?: boolean; asChild?: boolean; closeOnSelect?: boolean }
+>(({ className, inset, disabled, onClick, asChild = false, closeOnSelect = true, ...props }, ref) => {
     const context = React.useContext(DropdownMenuContext)
 
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (disabled) return
         onClick?.(e)
-        context?.onOpenChange(false)
+        if (closeOnSelect) {
+            context?.onOpenChange(false)
+        }
+    }
+
+    if (asChild) {
+        const child = React.Children.only(props.children) as React.ReactElement<any>
+        return React.cloneElement(child, {
+            ref,
+            className: cn(
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+                inset && "pl-8",
+                disabled && "pointer-events-none opacity-50",
+                className,
+                child.props.className
+            ),
+            onClick: (e: React.MouseEvent<HTMLDivElement>) => {
+                handleClick(e)
+                child.props.onClick?.(e)
+            },
+            "data-disabled": disabled || undefined,
+            "data-inset": inset || undefined,
+            tabIndex: disabled ? -1 : 0,
+            ...props,
+            children: child.props.children
+        })
     }
 
     return (
@@ -202,7 +321,7 @@ const DropdownMenuItem = React.forwardRef<
             tabIndex={disabled ? -1 : 0}
             aria-disabled={disabled}
             className={cn(
-                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground",
+                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer",
                 inset && "pl-8",
                 disabled && "pointer-events-none opacity-50",
                 className
@@ -403,4 +522,6 @@ export {
     DropdownMenuSub,
     DropdownMenuSubTrigger,
     DropdownMenuSubContent,
+    DropdownMenuGroup,
+    DropdownMenuPortal,
 }

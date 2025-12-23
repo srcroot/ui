@@ -1,5 +1,7 @@
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
+import { Slot } from "@/components/ui/slot"
 
 interface TooltipContextValue {
     open: boolean
@@ -73,19 +75,10 @@ const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
         const handleFocus = () => context.setOpen(true)
         const handleBlur = () => context.setOpen(false)
 
-        if (asChild && React.isValidElement(children)) {
-            return React.cloneElement(children as React.ReactElement<any>, {
-                onMouseEnter: handleMouseEnter,
-                onMouseLeave: handleMouseLeave,
-                onMouseMove: handleMouseMove,
-                onFocus: handleFocus,
-                onBlur: handleBlur,
-                ref,
-            })
-        }
+        const Comp = asChild ? Slot : "span"
 
         return (
-            <span
+            <Comp
                 ref={ref}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -96,7 +89,7 @@ const TooltipTrigger = React.forwardRef<HTMLSpanElement, TooltipTriggerProps>(
                 {...props}
             >
                 {children}
-            </span>
+            </Comp>
         )
     }
 )
@@ -109,13 +102,20 @@ const TooltipContent = React.forwardRef<
     const context = React.useContext(TooltipContext)
     if (!context) throw new Error("TooltipContent must be used within Tooltip")
 
+    const [mounted, setMounted] = React.useState(false)
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
+
     if (!context.open) return null
+    if (!mounted) return null
 
     // Offset from cursor (slightly above and to the right)
     const offsetX = 10
     const offsetY = -10
 
-    return (
+    return createPortal(
         <div
             ref={ref}
             role="tooltip"
@@ -132,7 +132,8 @@ const TooltipContent = React.forwardRef<
             {...props}
         >
             {children}
-        </div>
+        </div>,
+        document.body
     )
 })
 TooltipContent.displayName = "TooltipContent"
