@@ -22,6 +22,7 @@ const THEME_METADATA: Record<string, { name: string; description: string }> = {
   blue: { name: "Blue", description: "Trustworthy corporate blue" },
   green: { name: "Green", description: "Nature and success green" },
   orange: { name: "Orange", description: "Energetic and creative orange" },
+  glass: { name: "Glass", description: "Modern glassmorphic aesthetic" },
 }
 
 export class ThemeService {
