@@ -1,0 +1,14 @@
+import { BsArrowUp } from "react-icons/bs"
+
+import { Button } from "@/components/ui/button"
+
+export default function ButtonDemo() {
+    return (
+        <div className="flex flex-wrap items-center gap-2 md:flex-row">
+            <Button variant="outline">Button</Button>
+            <Button variant="outline" size="icon" aria-label="Submit">
+                <BsArrowUp />
+            </Button>
+        </div>
+    )
+}

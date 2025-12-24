@@ -66,6 +66,7 @@ export type ComponentName =
     | "chatbot"
     | "chart"
     | "slot"
+    | "table-of-contents"
 
 interface ComponentConfig {
     file: string
@@ -122,7 +123,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Text input field",
         category: "Forms",
         dependencies: [],
-        registryDependencies: ["react-icons^5.5.0"],
+        registryDependencies: ["react-icons"],
     },
     textarea: {
         file: "ui/textarea.tsx",
@@ -375,7 +376,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Date picker with calendar",
         category: "Forms",
         dependencies: ["calendar", "popover", "button"],
-        registryDependencies: ["date-fns^4.1.0"],
+        registryDependencies: ["date-fns"],
     },
     drawer: {
         file: "ui/drawer.tsx",
@@ -478,12 +479,18 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Charts using Recharts",
         category: "Data Display",
         dependencies: [],
-        registryDependencies: ["recharts^2.15.4"],
+        registryDependencies: ["recharts"],
     },
     slot: {
         file: "ui/slot.tsx",
         description: "Slot utility for polymorphic components",
         category: "Core",
+        dependencies: [],
+    },
+    "table-of-contents": {
+        file: "ui/table-of-contents.tsx",
+        description: "Table of contents navigation",
+        category: "Navigation",
         dependencies: [],
     },
 }
