@@ -13,6 +13,7 @@ interface FileUploadProps {
     maxFiles?: number
     className?: string
     disabled?: boolean
+    variant?: 'default' | 'compact'
 }
 
 interface UploadedFile {
@@ -44,6 +45,7 @@ export function FileUpload({
     maxFiles = 5,
     className,
     disabled = false,
+    variant = 'default',
 }: FileUploadProps) {
     const [files, setFiles] = React.useState<UploadedFile[]>([])
     const [isDragging, setIsDragging] = React.useState(false)
@@ -141,7 +143,9 @@ export function FileUpload({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={cn(
-                    "relative flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-8 transition-colors cursor-pointer",
+                    "relative flex cursor-pointer items-center justify-center rounded-lg border-2 border-dashed transition-colors",
+                    variant === 'default' && "flex-col gap-4 p-8",
+                    variant === 'compact' && "flex-row gap-3 p-4",
                     isDragging
                         ? "border-primary bg-primary/5"
                         : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
@@ -159,28 +163,55 @@ export function FileUpload({
                     disabled={disabled}
                 />
 
-                <div className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full bg-muted transition-colors",
-                    isDragging && "bg-primary/10"
-                )}>
-                    <LuUpload className={cn(
-                        "h-6 w-6 text-muted-foreground",
-                        isDragging && "text-primary"
-                    )} />
-                </div>
+                {variant === 'default' && (
+                    <>
+                        <div className={cn(
+                            "flex h-14 w-14 items-center justify-center rounded-full bg-muted transition-colors",
+                            isDragging && "bg-primary/10"
+                        )}>
+                            <LuUpload className={cn(
+                                "h-6 w-6 text-muted-foreground",
+                                isDragging && "text-primary"
+                            )} />
+                        </div>
 
-                <div className="text-center">
-                    <p className="text-sm font-medium">
-                        {isDragging ? "Drop files here" : "Drag & drop files here"}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        or click to browse
-                    </p>
-                </div>
+                        <div className="text-center">
+                            <p className="text-sm font-medium">
+                                {isDragging ? "Drop files here" : "Drag & drop files here"}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                or click to browse
+                            </p>
+                        </div>
 
-                <p className="text-xs text-muted-foreground">
-                    {accept ? `Accepted: ${accept}` : "All file types accepted"} • Max {formatFileSize(maxSize)}
-                </p>
+                        <p className="text-xs text-muted-foreground">
+                            {accept ? `Accepted: ${accept}` : "All file types accepted"} • Max {formatFileSize(maxSize)}
+                        </p>
+                    </>
+                )}
+
+                {variant === 'compact' && (
+                    <>
+                        <div className={cn(
+                            "flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-muted transition-colors",
+                            isDragging && "bg-primary/10"
+                        )}>
+                            <LuUpload className={cn(
+                                "h-5 w-5 text-muted-foreground",
+                                isDragging && "text-primary"
+                            )} />
+                        </div>
+
+                        <div className="flex flex-col text-left">
+                            <p className="text-sm font-medium">
+                                {isDragging ? "Drop files" : "Upload files"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                {accept ? accept : `Max ${formatFileSize(maxSize)}`}
+                            </p>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Error Message */}
@@ -193,6 +224,11 @@ export function FileUpload({
                 <div className="space-y-2">
                     {files.map((uploadedFile, index) => {
                         const FileIcon = getFileIcon(uploadedFile.file.type)
+                        const dotIndex = uploadedFile.file.name.lastIndexOf('.')
+                        const hasExtension = dotIndex !== -1
+                        const name = hasExtension ? uploadedFile.file.name.slice(0, dotIndex) : uploadedFile.file.name
+                        const extension = hasExtension ? uploadedFile.file.name.slice(dotIndex) : ''
+
                         return (
                             <div
                                 key={index}
@@ -211,9 +247,14 @@ export function FileUpload({
                                 )}
 
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">
-                                        {uploadedFile.file.name}
-                                    </p>
+                                    <div className="flex items-center min-w-0">
+                                        <span className="truncate text-sm font-medium">
+                                            {name}
+                                        </span>
+                                        <span className="text-sm font-medium whitespace-nowrap">
+                                            {extension}
+                                        </span>
+                                    </div>
                                     <p className="text-xs text-muted-foreground">
                                         {formatFileSize(uploadedFile.file.size)}
                                     </p>

@@ -8,6 +8,7 @@ import { Slot } from "@/components/ui/slot"
 interface SheetContextValue {
     open: boolean
     onOpenChange: (open: boolean) => void
+    className?: string
 }
 
 const SheetContext = React.createContext<SheetContextValue | null>(null)
@@ -17,6 +18,7 @@ interface SheetProps {
     open?: boolean
     onOpenChange?: (open: boolean) => void
     defaultOpen?: boolean
+    className?: string
 }
 
 /**
@@ -34,14 +36,14 @@ interface SheetProps {
  *   </SheetContent>
  * </Sheet>
  */
-function Sheet({ children, open: controlledOpen, onOpenChange, defaultOpen = false }: SheetProps) {
+function Sheet({ children, open: controlledOpen, onOpenChange, defaultOpen = false, className }: SheetProps) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen)
 
     const open = controlledOpen !== undefined ? controlledOpen : uncontrolledOpen
     const setOpen = onOpenChange || setUncontrolledOpen
 
     return (
-        <SheetContext.Provider value={{ open, onOpenChange: setOpen }}>
+        <SheetContext.Provider value={{ open, onOpenChange: setOpen, className }}>
             {children}
         </SheetContext.Provider>
     )
@@ -191,7 +193,8 @@ const SheetContent = React.forwardRef<HTMLDivElement, SheetContentProps>(
                         isAnimating
                             ? animationClasses[sideKey].open
                             : animationClasses[sideKey].closed,
-                        className
+                        className,
+                        context.className
                     )}
                     {...props}
                 >

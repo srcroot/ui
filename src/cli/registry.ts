@@ -66,7 +66,16 @@ export type ComponentName =
     | "chatbot"
     | "chart"
     | "slot"
+    | "slot"
     | "table-of-contents"
+    | "map"
+    | "empty-state"
+    | "floating-dock"
+    | "marquee"
+    | "scroll-to-top"
+    | "scroll-animation"
+    | "whatsapp"
+    | "patterns"
 
 interface ComponentConfig {
     file: string
@@ -389,6 +398,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Drag-and-drop file upload",
         category: "Forms",
         dependencies: ["button"],
+        registryDependencies: ["react-dropzone", "react-icons"],
     },
     "hover-card": {
         file: "ui/hover-card.tsx",
@@ -491,6 +501,59 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         file: "ui/table-of-contents.tsx",
         description: "Table of contents navigation",
         category: "Navigation",
+        dependencies: [],
+    },
+    map: {
+        file: "ui/map.tsx",
+        description: "Interactive map with Leaflet/Google",
+        category: "Data Display",
+        dependencies: [],
+        registryDependencies: ["leaflet", "react-leaflet"],
+    },
+    "empty-state": {
+        file: "ui/empty-state.tsx",
+        description: "Placeholder for empty data",
+        category: "Data Display",
+        dependencies: [],
+    },
+    "floating-dock": {
+        file: "ui/floating-dock.tsx",
+        description: "Mac-style floating dock",
+        category: "Navigation",
+        dependencies: [],
+        registryDependencies: ["framer-motion"],
+    },
+    marquee: {
+        file: "ui/marquee.tsx",
+        description: "Infinite scrolling marquee",
+        category: "Data Display",
+        dependencies: [],
+    },
+    "scroll-to-top": {
+        file: "ui/scroll-to-top.tsx",
+        description: "Button to scroll to top",
+        category: "Navigation",
+        dependencies: ["button"],
+        registryDependencies: ["framer-motion"],
+    },
+    "scroll-animation": {
+        file: "ui/scroll-animation.tsx",
+        description: "Scroll-triggered animations",
+        category: "Layout",
+        dependencies: [],
+        registryDependencies: ["framer-motion"],
+    },
+    whatsapp: {
+        file: "ui/whatsapp.tsx",
+        description: "WhatsApp chat button",
+        category: "Data Display",
+        dependencies: ["button"],
+        registryDependencies: ["react-icons"],
+    },
+    patterns: {
+        file: "ui/patterns.tsx",
+        description: "Background patterns",
+        category: "Layout",
         dependencies: [],
     },
 }

@@ -86,8 +86,12 @@ const DrawerTrigger = React.forwardRef<HTMLButtonElement, DrawerTriggerProps>(
 DrawerTrigger.displayName = "DrawerTrigger"
 
 // Drawer Close
-const DrawerClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
-    ({ children, onClick, ...props }, ref) => {
+interface DrawerCloseProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    asChild?: boolean
+}
+
+const DrawerClose = React.forwardRef<HTMLButtonElement, DrawerCloseProps>(
+    ({ children, onClick, asChild, ...props }, ref) => {
         const { onOpenChange } = useDrawer()
 
         const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -95,10 +99,12 @@ const DrawerClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttribut
             onOpenChange(false)
         }
 
+        const Comp = asChild ? Slot : "button"
+
         return (
-            <button ref={ref} onClick={handleClick} {...props}>
+            <Comp ref={ref} onClick={handleClick} {...props}>
                 {children}
-            </button>
+            </Comp>
         )
     }
 )
