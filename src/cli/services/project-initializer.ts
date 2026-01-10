@@ -7,6 +7,7 @@ import { execa } from "execa"
 import { ThemeService } from "./theme-service.js"
 import { TAILWIND_CONFIG } from "../utils/templates.js"
 import { getPackageManager } from "../utils/get-package-manager.js"
+import { getPackageInfo } from "../utils/get-package-info.js"
 import { logger } from "../utils/logger.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -214,6 +215,20 @@ export function cn(...inputs: ClassValue[]) {
                 spinner.succeed(`Created tailwind.config.ts`)
                 // Skip tailwind.config.ts for TW4 (no message needed)
             }
+
+            // Create srcroot.config.json
+            const packageInfo = getPackageInfo()
+            const configObj = {
+                version: packageInfo.version || "0.0.0",
+                theme: cfg.selectedTheme,
+                paths: {
+                    components: path.relative(cfg.cwd, cfg.componentsDir),
+                    utils: path.relative(cfg.cwd, utilsPath)
+                }
+            }
+
+            await fs.writeJSON(path.join(cfg.cwd, "srcroot.config.json"), configObj, { spaces: 2 })
+            spinner.succeed("Created srcroot.config.json")
 
         } catch (error) {
             spinner.fail("Failed to initialize project")

@@ -2,6 +2,25 @@
 
 Welcome to the `@srcroot/ui` developer guide. This document explains how to contribute new themes and UI components to the library.
 
+## Configuration
+
+When you run `init`, a `srcroot.config.json` file is created in your project root. This file stores your project's configuration.
+
+```json
+{
+  "version": "0.0.58",
+  "theme": "slate",
+  "paths": {
+    "components": "components/ui",
+    "utils": "lib/utils.ts"
+  }
+}
+```
+
+- **version**: The version of @srcroot/ui used.
+- **theme**: The active color theme.
+- **paths**: Locations of your components and utility file.
+
 ## Adding New Themes
 
 The UI library supports both Tailwind v3 and v4. When adding a new theme, you must implement it for both versions.
@@ -14,6 +33,7 @@ Create your new theme CSS files in the registry directories:
 - **Tailwind v4**: `src/registry/themes/v4/[theme-name].css`
 
 **Example (v3):**
+
 ```css
 @tailwind base;
 @tailwind components;
@@ -28,6 +48,7 @@ Create your new theme CSS files in the registry directories:
 ```
 
 **Example (v4):**
+
 ```css
 @import "tailwindcss";
 
@@ -47,8 +68,8 @@ Update the CLI theme service to include your new theme.
 ```typescript
 const THEME_METADATA: Record<string, { name: string; description: string }> = {
   // ... existing themes
-  [theme-name]: { name: "Theme Name", description: "Theme Description" },
-}
+  [theme - name]: { name: "Theme Name", description: "Theme Description" },
+};
 ```
 
 ## Adding New UI Components
@@ -67,10 +88,10 @@ Add your component file to: `src/registry/ui/[component-name].tsx`
   - ❌ Avoid `lucide-react` or other icon libraries and SVGs directly. Use `react-icons` or allow consumers to pass icons as props.
 - **Polymorphism**: Enable polymorphism using the `asChild` prop pattern with our internal `Slot` component.
   ```tsx
-  import { Slot } from "@/registry/ui/slot"
+  import { Slot } from "@/registry/ui/slot";
   // ...
   if (asChild) {
-    return <Slot {...props}>{children}</Slot>
+    return <Slot {...props}>{children}</Slot>;
   }
   ```
 - **Styling**: Use Tailwind CSS classes. Avoid inline styles.
@@ -78,20 +99,22 @@ Add your component file to: `src/registry/ui/[component-name].tsx`
 - **Exports**: Export the component and any relevant sub-components.
 
 **Example:**
+
 ```tsx
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
-const MyComponent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("bg-background text-foreground", className)}
-      {...props}
-    />
-  )
-)
-MyComponent.displayName = "MyComponent"
+const MyComponent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("bg-background text-foreground", className)}
+    {...props}
+  />
+));
+MyComponent.displayName = "MyComponent";
 
-export { MyComponent }
+export { MyComponent };
 ```
