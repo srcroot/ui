@@ -66,7 +66,6 @@ export type ComponentName =
     | "chatbot"
     | "chart"
     | "slot"
-    | "slot"
     | "table-of-contents"
     | "map"
     | "empty-state"
@@ -522,7 +521,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Mac-style floating dock",
         category: "Navigation",
         dependencies: [],
-        registryDependencies: ["framer-motion"],
+        registryDependencies: [],
     },
     marquee: {
         file: "ui/marquee.tsx",

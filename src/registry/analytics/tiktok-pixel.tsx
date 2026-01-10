@@ -1,17 +1,19 @@
-import Script from 'next/script';
-import type { FC } from 'react';
+"use client";
+
+import Script from "next/script";
+import type { FC } from "react";
 
 interface TikTokPixelProps {
-    pixelIds: string[];           // ← array
+  pixelIds: string[]; // ← array
 }
 
 const TikTokPixel: FC<TikTokPixelProps> = ({ pixelIds }) => {
-    return (
-        <Script
-            id="tiktok-script-multi"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-                __html: `
+  return (
+    <Script
+      id="tiktok-script-multi"
+      strategy="afterInteractive"
+      dangerouslySetInnerHTML={{
+        __html: `
           !function (w, d, t) {
             w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];
             ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],
@@ -22,13 +24,13 @@ const TikTokPixel: FC<TikTokPixelProps> = ({ pixelIds }) => {
             ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};
             var s=document.createElement("script");s.type="text/javascript",s.async=!0,s.src=r+"?sdkid="+e+"&lib="+t;
             var p=document.getElementsByTagName("script")[0];p.parentNode.insertBefore(s,p)};
-            ${pixelIds.map(id => `ttq.load('${id}');`).join('\n')}
+            ${pixelIds.map((id) => `ttq.load('${id}');`).join("\n")}
             ttq.page();
           }(window, document, 'ttq');
         `,
-            }}
-        />
-    );
+      }}
+    />
+  );
 };
 
 export default TikTokPixel;
