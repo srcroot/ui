@@ -1,6 +1,6 @@
 {
   "name": "@srcroot/ui",
-  "version": "0.0.59",
+  "version": "0.0.61",
   "description": "A UI library with polymorphic, accessible React components",
   "author": "Shifaul Islam",
   "license": "MIT",

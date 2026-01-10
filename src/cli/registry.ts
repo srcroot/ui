@@ -76,6 +76,7 @@ export type ComponentName =
     | "scroll-animation"
     | "whatsapp"
     | "patterns"
+    | "theme-switcher"
 
 interface ComponentConfig {
     file: string
@@ -508,7 +509,7 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Interactive map with Leaflet/Google",
         category: "Data Display",
         dependencies: [],
-        registryDependencies: ["leaflet", "react-leaflet"],
+        registryDependencies: ["leaflet", "react-leaflet", "@types/leaflet"],
     },
     "empty-state": {
         file: "ui/empty-state.tsx",
@@ -555,6 +556,13 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Background patterns",
         category: "Layout",
         dependencies: [],
+    },
+    "theme-switcher": {
+        file: "ui/theme-switcher.tsx",
+        description: "Theme toggle for dropdowns",
+        category: "Navigation",
+        dependencies: ["dropdown-menu"],
+        registryDependencies: ["next-themes", "react-icons"],
     },
 }
 
