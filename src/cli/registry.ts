@@ -534,14 +534,14 @@ export const REGISTRY: Record<ComponentName, ComponentConfig> = {
         description: "Button to scroll to top",
         category: "Navigation",
         dependencies: ["button"],
-        registryDependencies: ["framer-motion"],
+        registryDependencies: [],
     },
     "scroll-animation": {
         file: "ui/scroll-animation.tsx",
         description: "Scroll-triggered animations",
         category: "Layout",
         dependencies: [],
-        registryDependencies: ["framer-motion"],
+        registryDependencies: ["gsap", "@gsap/react"],
     },
     whatsapp: {
         file: "ui/whatsapp.tsx",

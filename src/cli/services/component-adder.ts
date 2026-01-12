@@ -130,20 +130,14 @@ export class ComponentAdder {
         const componentsToAdd = Array.from(componentDeps)
         const packagesToInstall = Array.from(packageDeps)
 
-        if (componentsToAdd.length > 10) {
-            logger.info(`\n📦 Adding ${componentsToAdd.length} components...\n`)
-        } else {
-            logger.info("\n📦 Adding components:\n")
-            componentsToAdd.forEach((name) => {
-                console.log(`  - ${name}`)
-            })
+        if (componentsToAdd.length > 0) {
+            logger.info(`\n📦 Adding components:`)
+            console.log(`  ${componentsToAdd.join(", ")}`)
         }
 
         if (packagesToInstall.length > 0) {
-            logger.info("\n📦 Installing dependencies:\n")
-            packagesToInstall.forEach((pkg) => {
-                console.log(`  - ${pkg}`)
-            })
+            logger.info("\n📦 Installing dependencies:")
+            console.log(`  ${packagesToInstall.join(", ")}`)
         }
 
         console.log()
@@ -179,12 +173,61 @@ export class ComponentAdder {
         try {
             await fs.ensureDir(componentsDir)
 
+            let overwriteAll = false
+            let skipAll = false
+
+            // First pass: identify conflicts
+            if (!this.options.overwrite) {
+                const conflicts: string[] = []
+                for (const name of components) {
+                    const comp = REGISTRY[name]
+                    const fileName = path.basename(comp.file)
+                    const targetPath = path.join(componentsDir, fileName)
+                    if (fs.existsSync(targetPath)) {
+                        conflicts.push(fileName)
+                    }
+                }
+
+                if (conflicts.length > 0) {
+                    spinner.stop()
+                    logger.warn(`\n⚠️  The following components already exist:`)
+                    console.log(`  ${conflicts.join(", ")}`)
+                    console.log()
+
+                    const { action } = await prompts({
+                        type: "select",
+                        name: "action",
+                        message: "How would you like to proceed?",
+                        choices: [
+                            { title: "Overwrite all", value: "overwrite" },
+                            { title: "Skip all", value: "skip" },
+                            { title: "Decide for each", value: "ask" }
+                        ]
+                    })
+
+                    if (!action) {
+                        logger.warn("Action cancelled.")
+                        process.exit(0)
+                    }
+
+                    if (action === "overwrite") overwriteAll = true
+                    if (action === "skip") skipAll = true
+                }
+                spinner.start("Adding components...")
+            }
+
             for (const name of components) {
                 const comp = REGISTRY[name]
                 const fileName = path.basename(comp.file)
                 const targetPath = path.join(componentsDir, fileName)
 
-                if (fs.existsSync(targetPath) && !this.options.overwrite) {
+                if (fs.existsSync(targetPath) && !this.options.overwrite && !overwriteAll) {
+                    if (skipAll) {
+                        spinner.info(`Skipped ${fileName}`)
+                        continue
+                    }
+
+                    // If we are here, it means we chose "Decide for each"
                     spinner.stop()
                     const { overwrite } = await prompts({
                         type: "confirm",
@@ -202,12 +245,7 @@ export class ComponentAdder {
                 }
 
                 // Get component source from registry folder
-                // We assume this code runs from dist/cli/services or similar, so we need to go up to root then src/registry
-                // Adjust path resolution relative to where this file ends up in dist
-                // __dirname in compiled code usually points to dist/cli/services
-                // registry files are in src/registry (source) or dist/registry (if copied)
-                // For this dev environment, we point to source
-                const registryPath = path.resolve(__dirname, "..", "src", "registry", comp.file)
+                const registryPath = path.resolve(__dirname, "..", "..", "registry", comp.file)
 
                 if (!fs.existsSync(registryPath)) {
                     spinner.warn(`Registry file not found for ${name}: ${registryPath}`)
