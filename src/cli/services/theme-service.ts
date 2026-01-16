@@ -1,6 +1,7 @@
 import fs from "fs-extra"
 import path from "path"
 import { fileURLToPath } from "url"
+import { getRegistryPath } from "../utils/get-registry-path.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -29,7 +30,7 @@ export class ThemeService {
   private registryThemesPath: string
 
   constructor() {
-    this.registryThemesPath = path.resolve(__dirname, "..", "src", "registry", "themes")
+    this.registryThemesPath = path.join(getRegistryPath(), "themes")
   }
 
   /**

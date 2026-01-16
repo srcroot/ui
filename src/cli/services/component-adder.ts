@@ -7,6 +7,7 @@ import { fileURLToPath } from "url"
 import { REGISTRY, type ComponentName } from "../registry.js"
 import { logger } from "../utils/logger.js"
 import { getPackageManager } from "../utils/get-package-manager.js"
+import { getRegistryPath } from "../utils/get-registry-path.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -216,6 +217,7 @@ export class ComponentAdder {
                 spinner.start("Adding components...")
             }
 
+            let addedCount = 0
             for (const name of components) {
                 const comp = REGISTRY[name]
                 const fileName = path.basename(comp.file)
@@ -245,7 +247,7 @@ export class ComponentAdder {
                 }
 
                 // Get component source from registry folder
-                const registryPath = path.resolve(__dirname, "..", "..", "registry", comp.file)
+                const registryPath = path.resolve(getRegistryPath(), comp.file)
 
                 if (!fs.existsSync(registryPath)) {
                     spinner.warn(`Registry file not found for ${name}: ${registryPath}`)
@@ -254,6 +256,7 @@ export class ComponentAdder {
 
                 const content = await fs.readFile(registryPath, "utf-8")
                 await fs.writeFile(targetPath, content)
+                addedCount++
 
                 if (components.length > 10) {
                     spinner.text = `Adding ${fileName}...`
@@ -263,7 +266,7 @@ export class ComponentAdder {
             }
 
             if (components.length > 10) {
-                spinner.succeed(`Added ${components.length} components`)
+                spinner.succeed(`Added ${addedCount} components`)
             }
 
         } catch (error) {

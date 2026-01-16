@@ -9,6 +9,7 @@ import { TAILWIND_CONFIG } from "../utils/templates.js"
 import { getPackageManager } from "../utils/get-package-manager.js"
 import { getPackageInfo } from "../utils/get-package-info.js"
 import { logger } from "../utils/logger.js"
+import { getRegistryPath } from "../utils/get-registry-path.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -172,7 +173,7 @@ export class ProjectInitializer {
 
             // Create utils.ts
             const utilsPath = path.join(cfg.libDir, "utils.ts")
-            const registryUtilsPath = path.resolve(__dirname, "..", "src", "registry", "lib", "utils.ts")
+            const registryUtilsPath = path.join(getRegistryPath(), "lib", "utils.ts")
             let utilsContent = ""
 
             if (fs.existsSync(registryUtilsPath)) {
